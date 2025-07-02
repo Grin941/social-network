@@ -6,7 +6,11 @@ import sqlalchemy
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class UserRepository(abstract_repository.AbstractRepository[domain.NewUserDomain, domain.UserDomain, AsyncSession]):
+class UserRepository(
+    abstract_repository.AbstractRepository[
+        domain.NewUserDomain, domain.UserDomain, AsyncSession
+    ]
+):
     async def create(self, item: domain.NewUserDomain) -> domain.UserDomain:
         session = self._get_db_session()
         result = await session.execute(

@@ -13,7 +13,9 @@ class AbstractRepository(abc.ABC, typing.Generic[Entity, NewEntity, DBSessionTyp
     def __init__(self) -> None:
         self._db_session = None
 
-    def __call__(self, db_session: typing.Optional[DBSessionType] = None) -> "AbstractRepository[Entity, NewEntity, DBSessionType]":
+    def __call__(
+        self, db_session: typing.Optional[DBSessionType] = None
+    ) -> "AbstractRepository[Entity, NewEntity, DBSessionType]":
         self._db_session = db_session
         return self
 
@@ -23,9 +25,7 @@ class AbstractRepository(abc.ABC, typing.Generic[Entity, NewEntity, DBSessionTyp
         return self._db_session
 
     @abc.abstractmethod
-    async def create(self, item: NewEntity) -> Entity:
-        ...
+    async def create(self, item: NewEntity) -> Entity: ...
 
     @abc.abstractmethod
-    async def find_one(self, id_: int) -> Entity:
-        ...
+    async def find_one(self, id_: int) -> Entity: ...

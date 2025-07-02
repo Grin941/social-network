@@ -22,7 +22,9 @@ class UnitOfWork:
 
         self.users = user_repository
 
-    async def _init_repositories(self, session: typing.Optional[AsyncSession] = None) -> None:
+    async def _init_repositories(
+        self, session: typing.Optional[AsyncSession] = None
+    ) -> None:
         self.users(session)
 
     async def __aenter__(self) -> None:
@@ -30,7 +32,12 @@ class UnitOfWork:
         await self._init_repositories(session)
         self._session = session
 
-    async def __aexit__(self, exc_type: typing.Optional[type[BaseExceptionGroup]], exc_value: typing.Optional[BaseException], traceback: typing.Optional[types.TracebackType]) -> None:
+    async def __aexit__(
+        self,
+        exc_type: typing.Optional[type[BaseExceptionGroup]],
+        exc_value: typing.Optional[BaseException],
+        traceback: typing.Optional[types.TracebackType],
+    ) -> None:
         session = typing.cast(AsyncSession, self._session)
         try:
             if exc_type:
@@ -47,7 +54,6 @@ class UnitOfWork:
             await session.close()
             self._session = None
             await self._init_repositories()
-
 
     def transaction(self) -> "UnitOfWork":
         return self

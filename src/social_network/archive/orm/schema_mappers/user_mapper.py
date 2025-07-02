@@ -2,6 +2,7 @@ from src.social_network.infrastructure.database.schema_mappers import abstract_m
 from src.social_network.infrastructure.database import orm
 from src.social_network.application import domain
 
+
 class UserMapper(abstract_mapper.AbstractMapper[domain.UserDomain, orm.UserORM]):
     @staticmethod
     def map_domain_to_orm(domain_model: domain.UserDomain) -> orm.UserORM:
@@ -14,7 +15,6 @@ class UserMapper(abstract_mapper.AbstractMapper[domain.UserDomain, orm.UserORM])
             city=domain_model.city,
             sex=domain_model.sex,
         )
-
 
     @staticmethod
     def map_orm_to_domain(orm_model: orm.UserORM) -> domain.UserDomain:
