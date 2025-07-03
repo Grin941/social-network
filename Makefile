@@ -23,7 +23,7 @@ lint: uv   ## Run linters
 	@echo "Linting code"
 	@uv run ruff check ./src ./tests
 	@uv run mypy ./src ./tests
-	@uv run deptry .
+	@uv run deptry ./src
 
 
 .PHONY: test

@@ -1,6 +1,6 @@
 from starlette import requests
-from src.social_network.api import services
-from src.social_network.domain.models import user
+from social_network.api import services
+from social_network.domain.models import user
 from fastapi import security
 import fastapi
 import typing

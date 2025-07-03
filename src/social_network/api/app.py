@@ -1,19 +1,22 @@
+import dataclasses
+
 import fastapi
 import typing
 import logging
 import datetime
 import contextlib
-import pydantic
 
 from fastapi import encoders, exceptions as fastapi_exceptions
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from starlette import requests, responses, status
 
-from src.social_network import settings
-from src.social_network.api import routes, models, requests as api_requests
-from src.social_network.database import exceptions as db_exceptions
-from src.social_network.domain import exceptions as domain_exceptions
+from social_network import settings
+from social_network.api.routes import user as user_routes, login as login_routes
+from social_network.api.models import common
+from social_network.api import requests as api_requests
+from social_network.database import exceptions as db_exceptions
+from social_network.domain import exceptions as domain_exceptions
 
 
 async def _validation_exception_handler(
@@ -31,7 +34,7 @@ async def _validation_exception_handler(
     return responses.JSONResponse(
         status_code=status_code,
         content=encoders.jsonable_encoder(
-            models.ErrorMessage(
+            common.ErrorMessage(
                 message=repr(exc),
                 code=getattr(exc, "code", 0),
                 request_id=api_requests.get_request_id(),
@@ -41,7 +44,8 @@ async def _validation_exception_handler(
     )
 
 
-class ApplicationState(pydantic.BaseModel):
+@dataclasses.dataclass
+class ApplicationState:
     settings: settings.SocialNetworkSettings
     logger: logging.Logger
     session_factory: async_sessionmaker[AsyncSession]
@@ -82,8 +86,8 @@ def build_application() -> fastapi.FastAPI:
             Exception: _validation_exception_handler,
         },
     )
-    app.include_router(routes.login_router)
-    app.include_router(routes.user_router)
+    app.include_router(user_routes.router)
+    app.include_router(login_routes.router)
     app.add_middleware(api_requests.RequestIdMiddleware)
 
     return app

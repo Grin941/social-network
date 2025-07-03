@@ -1,13 +1,13 @@
 import fastapi
 import typing
 
-from src.social_network.api.models import (
+from social_network.api.models import (
     registration as registration_dto,
     common,
     user as user_dto,
 )
-from src.social_network.domain.models import user as user_domain
-from src.social_network.api import services, auth
+from social_network.domain.models import user as user_domain
+from social_network.api import services, auth
 
 
 router = fastapi.APIRouter(prefix="/user")

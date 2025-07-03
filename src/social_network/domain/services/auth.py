@@ -3,12 +3,12 @@ from jose import jwt, JWTError
 from cryptography import fernet
 import logging
 
-from src.social_network.database import uow
+from social_network.database import uow
 
-from src.social_network.domain.services import abstract
+from social_network.domain.services import abstract
 
-from src.social_network.domain import models, exceptions as domain_exceptions
-from src.social_network.database import exceptions as db_exceptions
+from social_network.domain import models, exceptions as domain_exceptions
+from social_network.database import exceptions as db_exceptions
 
 
 class AuthService(abstract.AbstractService):

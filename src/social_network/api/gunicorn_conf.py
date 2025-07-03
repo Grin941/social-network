@@ -1,4 +1,4 @@
-from src.social_network import settings
+from social_network import settings
 
 
 social_network_settings = settings.SocialNetworkSettings()

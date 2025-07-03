@@ -1,5 +1,5 @@
 import typing
-from src.social_network import exceptions
+from social_network import exceptions
 
 
 class DatabaseError(exceptions.SocialNetworkError):

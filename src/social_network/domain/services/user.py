@@ -1,4 +1,4 @@
-from src.social_network.domain.services import abstract
+from social_network.domain.services import abstract
 
 from social_network.domain.models.user import UserDomain
 

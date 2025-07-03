@@ -1,4 +1,4 @@
-from src.social_network import exceptions
+from social_network import exceptions
 
 
 class DomainError(exceptions.SocialNetworkError):

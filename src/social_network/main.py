@@ -1,7 +1,7 @@
 import pathlib
 import sys
 
-from gunicorn.app.wsgiapp import run
+from gunicorn.app.wsgiapp import run  # type: ignore[import-untyped]
 
 
 def main() -> None:

@@ -1,6 +1,6 @@
 import pydantic
 
-from src.social_network.api.models import user
+from social_network.api.models import user
 
 
 class RegistrationDTO(user._UserDTO):

@@ -1,7 +1,7 @@
 import abc
 import logging
 
-from src.social_network.database import uow
+from social_network.database import uow
 
 
 class AbstractService(abc.ABC):

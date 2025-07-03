@@ -1,7 +1,7 @@
 import fastapi
 
-from src.social_network.api.models import auth, common
-from src.social_network.api import services
+from social_network.api.models import auth, common
+from social_network.api import services
 
 
 router = fastapi.APIRouter()
