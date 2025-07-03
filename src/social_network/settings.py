@@ -9,6 +9,10 @@ class ServerSettings(pydantic.BaseModel):
     bind_port: int = 8080
     workers: int = pydantic.Field(default=1, gt=0)
 
+    @property
+    def bind(self) -> str:
+        return f"{self.bind_host}:{self.bind_port}"
+
     def print_to_log(self, log: logging.Logger) -> None:
         log.info(f"server.bind_host={self.bind_port}")
         log.info(f"server.bind_port={self.bind_port}")

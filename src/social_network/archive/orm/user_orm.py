@@ -1,6 +1,5 @@
 import datetime
 import uuid
-from typing_extensions import Text
 
 import sqlalchemy
 import sqlalchemy.orm

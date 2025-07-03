@@ -8,7 +8,9 @@ dependencies = [
     "alembic>=1.16.2",
     "cryptography>=45.0.4",
     "fastapi[standard]>=0.115.14",
+    "gunicorn>=23.0.0",
     "pydantic-settings>=2.10.1",
+    "python-jose>=3.5.0",
     "sqlalchemy>=2.0.41",
 ]
 
@@ -22,6 +24,7 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "deptry>=0.23.0",
+    "ipython>=9.4.0",
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.15",
     "mkdocstrings[python]>=0.29.1",
