@@ -43,16 +43,16 @@ make-migration:  ## Generate migration
         exit 1; \
     fi
 	@set -a && source .env && set +a && \
-	python -m social_network.database.migrations.cmd.create_migration --message "$(NAME)"
+	alembic --config src/social_network/database/migrations/alembic.ini revision -m "$(NAME)"
 
 
 .PHONY: migrate
 migrate:  ## Apply migrations
 	@set -a && source .env && set +a && \
-	python -m social_network.database.migrations.cmd.apply_migrations
+	alembic --config src/social_network/database/migrations/alembic.ini upgrade head
 
 
 .PHONY: rollback-migration
 rollback-migration:  ## Rollback migration
 	@set -a && source .env && set +a && \
-	python -m social_network.database.migrations.cmd.rollback_migration
+	alembic --config src/social_network/database/migrations/alembic.ini downgrade -1

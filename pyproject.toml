@@ -26,9 +26,6 @@ DEP002 = ["asyncpg", "greenlet"]
 
 [project.scripts]
 social-network = "social_network.main:main"
-run-migrations = "social_network.database.migrations.cmd.apply_migrations:main"
-make-migrations = "social_network.database.migrations.cmd.create_migrations:main"
-rollback-migrations = "social_network.database.migrations.cmd.rollback_migrations:main"
 
 [build-system]
 requires = ["hatchling"]
