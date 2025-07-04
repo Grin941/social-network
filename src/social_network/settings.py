@@ -20,7 +20,7 @@ class ServerSettings(pydantic.BaseModel):
 
 
 class DbSettings(pydantic.BaseModel):
-    typename: str = "postgresql+psycopg2"
+    typename: str = "postgresql+asyncpg"
     username: str = "socnet"
     password: str = ""
     host: str = "127.0.0.1"

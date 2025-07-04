@@ -1,4 +1,5 @@
 import typing
+import uuid
 
 from social_network.database.repository import abstract_repository
 from social_network.database import exceptions
@@ -13,33 +14,25 @@ class UserRepository(
         models.NewUserDomain, models.UserDomain, AsyncSession
     ]
 ):
-    async def _find_duplicates(self, item: models.NewUserDomain) -> None:
-        filters = {"password": item.password, "second_name": item.second_name}
-        duplicates = await self.find_all(filters)
-        if duplicates:
-            raise exceptions.ObjectAlreadyExistsError(model="users", filters=filters)
-
     async def create(self, item: models.NewUserDomain) -> models.UserDomain:
-        await self._find_duplicates(item)
-
         session = self._get_db_session()
-        result = await session.execute(
+        id_ = str(uuid.uuid4())
+        await session.execute(
             sqlalchemy.text(
-                "INSERT INTO users (first_name, second_name, birdth_date, biography, city, sex, password) "
-                "VALUES (:first_name, :second_name, :birdth_date, :biography, :city, :sex, :password)"
+                "INSERT INTO users (id, first_name, second_name, birthdate, biography, city, password) "
+                "VALUES (:id, :first_name, :second_name, :birthdate, :biography, :city, :password)"
             ),
-            **item.model_dump(),
+            item.model_dump() | {"id": id_},
         )
 
-        # user_id = result.inserted_primary_key.id
-        return await self.find_one(result.scalar_one())
+        return await self.find_one(id_)
 
     async def find_one(self, id_: str) -> models.UserDomain:
         session = self._get_db_session()
         users = await session.execute(
-            sqlalchemy.text(f"SELECT * from users where id = {id_}")
+            sqlalchemy.text(f"SELECT * from users where id = '{id_}'")
         )
-        for user in users.scalar_one():
+        for user in users.mappings().all():
             return models.UserDomain(**user)
 
         raise exceptions.ObjectDoesNotExistError(model="users", id_=id_)
@@ -48,7 +41,7 @@ class UserRepository(
         session = self._get_db_session()
         users = await session.execute(
             sqlalchemy.text(
-                f"SELECT * from users where {' AND '.join([f"""{k} = '{v}'""" for k, v in filters.items()])}"
+                f"SELECT * from users where {' AND '.join([f"""{k} = '{str(v)}'""" for k, v in filters.items()])}"
             )
         )
-        return [models.UserDomain(**user) for user in users.scalars()]
+        return [models.UserDomain(**user) for user in users.mappings().all()]

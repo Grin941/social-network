@@ -30,3 +30,29 @@ lint: uv   ## Run linters
 test: uv  ## Run tests
 	@echo "Testing code"
 	@uv run pytest
+
+.PHONY: serve
+serve:  ## Run application
+	@echo "ACTION: Run project"
+	@docker compose --env-file .env up --build
+
+.PHONY: make-migration
+make-migration:  ## Generate migration
+	@if [ -z "$(NAME)" ]; then \
+        echo "Error: use MIGRATION_NAME: make make-migration NAME=add_users"; \
+        exit 1; \
+    fi
+	@set -a && source .env && set +a && \
+	python -m social_network.database.migrations.cmd.create_migration --message "$(NAME)"
+
+
+.PHONY: migrate
+migrate:  ## Apply migrations
+	@set -a && source .env && set +a && \
+	python -m social_network.database.migrations.cmd.apply_migrations
+
+
+.PHONY: rollback-migration
+rollback-migration:  ## Rollback migration
+	@set -a && source .env && set +a && \
+	python -m social_network.database.migrations.cmd.rollback_migration

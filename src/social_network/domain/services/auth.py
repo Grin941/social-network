@@ -8,7 +8,6 @@ from social_network.database import uow
 from social_network.domain.services import abstract
 
 from social_network.domain import models, exceptions as domain_exceptions
-from social_network.database import exceptions as db_exceptions
 
 
 class AuthService(abstract.AbstractService):
@@ -43,19 +42,34 @@ class AuthService(abstract.AbstractService):
             algorithm=algorithm,
         )
 
-    async def register(self, new_user: models.NewUserDomain) -> models.UserDomain:
+    async def _duplicate_exists(self, item: models.NewUserDomain) -> bool:
         async with self._uow.transaction():
-            try:
-                return await self._uow.users.create(
-                    models.NewUserDomain(
-                        **new_user.model_dump(),
-                        password=self._encrypt_password(
-                            password=new_user.password, secret=self._secret
-                        ),
-                    )
+            users = await self._uow.users.find_all(
+                item.model_dump(exclude={"password"})
+            )
+
+        for user in users:
+            if (
+                self._decrypt_password(password=user.password, secret=self._secret)
+                == item.password
+            ):
+                return True
+
+        return False
+
+    async def register(self, new_user: models.NewUserDomain) -> models.UserDomain:
+        if await self._duplicate_exists(new_user):
+            raise domain_exceptions.UserAlreadyRegisteredError()
+
+        async with self._uow.transaction():
+            return await self._uow.users.create(
+                models.NewUserDomain(
+                    **new_user.model_dump(exclude={"password"}),
+                    password=self._encrypt_password(
+                        password=new_user.password, secret=self._secret
+                    ),
                 )
-            except db_exceptions.ObjectAlreadyExistsError as exc:
-                raise domain_exceptions.UserAlreadyRegisteredError() from exc
+            )
 
     async def authorize(self, token: str) -> models.UserDomain:
         try:
@@ -89,8 +103,9 @@ class AuthService(abstract.AbstractService):
 
         if not user:
             raise domain_exceptions.UserNotFoundError(id_)
-        if user.password != self._encrypt_password(
-            password=password, secret=self._secret
+        if (
+            self._decrypt_password(password=user.password, secret=self._secret)
+            != password
         ):
             raise domain_exceptions.WrongPasswordError()
 

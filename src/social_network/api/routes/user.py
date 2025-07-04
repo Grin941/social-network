@@ -7,7 +7,7 @@ from social_network.api.models import (
     user as user_dto,
 )
 from social_network.domain.models import user as user_domain
-from social_network.api import services, auth
+from social_network.api import services
 
 
 router = fastapi.APIRouter(prefix="/user")
@@ -39,7 +39,7 @@ async def login(
     "/get/{id}",
     response_model=user_dto.UserDTO,
     response_description="Успешное получение анкеты пользователя",
-    summary="Получение анкеты пользователяя",
+    summary="Получение анкеты пользователя",
     description="Получение анкеты пользователя",
     operation_id="get_user",
     responses={
@@ -49,7 +49,7 @@ async def login(
         500: {"description": "Ошибка сервера", "model": common.ErrorMessage},
         503: {"description": "Ошибка сервера", "model": common.ErrorMessage},
     },
-    dependencies=[fastapi.Depends(auth.verify_access_token)],
+    # dependencies=[fastapi.Depends(auth.verify_access_token)],
 )
 async def get_user(
     id: typing.Annotated[str, fastapi.Path(title="Идентификатор пользователя")],

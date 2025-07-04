@@ -5,7 +5,7 @@ import datetime
 class _UserDTO(pydantic.BaseModel):
     first_name: str
     second_name: str
-    birdthdate: datetime.datetime
+    birthdate: datetime.datetime
     biography: str
     city: str
 

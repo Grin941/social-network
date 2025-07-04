@@ -1,13 +1,16 @@
-import pathlib
-import sys
+import uvicorn
 
-from gunicorn.app.wsgiapp import run  # type: ignore[import-untyped]
+from social_network import settings
+from social_network.api import app
 
 
 def main() -> None:
-    config_path = pathlib.Path(__file__).parent.resolve() / "api" / "gunicorn_conf.py"
-    sys.argv = f"gunicorn --access-logfile - --config {config_path} src.social_network.api.app:build_application()".split()
-    sys.exit(run())
+    social_network_settings = settings.SocialNetworkSettings()
+    uvicorn.run(
+        app.build_application(),
+        host=social_network_settings.server.bind_host,
+        port=social_network_settings.server.bind_port,
+    )
 
 
 if __name__ == "__main__":

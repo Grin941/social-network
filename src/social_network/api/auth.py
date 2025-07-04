@@ -1,16 +1,14 @@
-from starlette import requests
 from social_network.api import services
 from social_network.domain.models import user
 from fastapi import security
 import fastapi
 import typing
 
-token = typing.Annotated[
-    str, fastapi.Depends(security.OAuth2PasswordBearer(tokenUrl="login"))
-]
+oauth2_scheme = security.OAuth2PasswordBearer(tokenUrl="login")
 
 
 async def verify_access_token(
-    request: requests.Request, auth_service: services.AuthService
+    auth_service: services.AuthService,
+    token: typing.Annotated[str, fastapi.Depends(oauth2_scheme)],
 ) -> user.UserDomain:
-    return await auth_service.authorize(request.headers.get("Authorization", ""))
+    return await auth_service.authorize(token)

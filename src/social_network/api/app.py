@@ -1,5 +1,3 @@
-import dataclasses
-
 import fastapi
 import typing
 import logging
@@ -31,12 +29,16 @@ async def _validation_exception_handler(
     else:
         status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
+    error_code = getattr(exc, "code", None)
+    if not isinstance(error_code, int):
+        error_code = 0
+
     return responses.JSONResponse(
         status_code=status_code,
         content=encoders.jsonable_encoder(
             common.ErrorMessage(
-                message=repr(exc),
-                code=getattr(exc, "code", 0),
+                message=str(exc),
+                code=error_code,
                 request_id=api_requests.get_request_id(),
             )
         ),
@@ -44,8 +46,7 @@ async def _validation_exception_handler(
     )
 
 
-@dataclasses.dataclass
-class ApplicationState:
+class ApplicationState(typing.TypedDict):
     settings: settings.SocialNetworkSettings
     logger: logging.Logger
     session_factory: async_sessionmaker[AsyncSession]
@@ -65,7 +66,7 @@ async def lifespan(
 
     engine = create_async_engine(
         url=social_network_settings.db.connection_url,
-        echo=social_network_settings.level,
+        echo=social_network_settings.level == "DEBUG",
     )
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
@@ -85,6 +86,7 @@ def build_application() -> fastapi.FastAPI:
         exception_handlers={
             Exception: _validation_exception_handler,
         },
+        lifespan=lifespan,
     )
     app.include_router(user_routes.router)
     app.include_router(login_routes.router)
