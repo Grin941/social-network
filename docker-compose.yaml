@@ -29,3 +29,23 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  social-network:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python -m social_network.main
+    ports:
+      - "8081:8080"
+    environment:
+      DB__HOST: ${DB__HOST}
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: ${AUTH__ALGORITHM}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
