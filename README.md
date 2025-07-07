@@ -4,8 +4,6 @@
 
 **Docker Compose**
 
-Самым простым способом локально развернуть приложение является использование Docker Compose:
-
 ```shell
 $ docker compose --env-file .env.local up --build
 ```

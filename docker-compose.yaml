@@ -1,4 +1,4 @@
-# run as: docker compose --env-file .env up --build
+# run as: docker compose --env-file .env.local up --build
 
 services:
   postgres:
