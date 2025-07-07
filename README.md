@@ -18,23 +18,23 @@ $ docker compose --env-file .env.local up --build
 
 - установить необходимые зависимости для локальной разработки
 ```shell
-$ make install
+make install
 ```
 
 **Форматирование**
 
 - автоформатирование кода
 ```shell
-$ make fix
+make fix
 ```
 - тестирование кода линтерами
 ```shell
-$ make lint
+make lint
 ```
 
 **Тестирование**
 
 - запуск `pytest` тестов
 ```shell
-$ make test
+make test
 ```
