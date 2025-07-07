@@ -79,6 +79,15 @@ async def lifespan(
     await engine.dispose()
 
 
+def customize_openapi(app: fastapi.FastAPI) -> None:
+    for _, method_item in app.openapi().get("paths").items():
+        for _, param in method_item.items():
+            api_responses = param.get("responses")
+            # remove 422 response, also can remove other status code
+            if "422" in api_responses:
+                del api_responses["422"]
+
+
 def build_application() -> fastapi.FastAPI:
     app = fastapi.FastAPI(
         title="Social Network",
@@ -88,8 +97,10 @@ def build_application() -> fastapi.FastAPI:
         },
         lifespan=lifespan,
     )
-    app.include_router(user_routes.router)
     app.include_router(login_routes.router)
+    app.include_router(user_routes.router)
     app.add_middleware(api_requests.RequestIdMiddleware)
+
+    customize_openapi(app)
 
     return app

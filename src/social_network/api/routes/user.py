@@ -3,11 +3,10 @@ import typing
 
 from social_network.api.models import (
     registration as registration_dto,
-    common,
     user as user_dto,
 )
 from social_network.domain.models import user as user_domain
-from social_network.api import services
+from social_network.api import services, responses
 
 
 router = fastapi.APIRouter(prefix="/user")
@@ -20,11 +19,7 @@ router = fastapi.APIRouter(prefix="/user")
     summary="Регистрация нового пользователя",
     description="Регистрация нового пользователя",
     operation_id="register_user",
-    responses={
-        400: {"description": "Невалидные данные", "model": common.ErrorMessage},
-        500: {"description": "Ошибка сервера", "model": common.ErrorMessage},
-        503: {"description": "Ошибка сервера", "model": common.ErrorMessage},
-    },
+    responses=responses.response_400 | responses.response_500 | responses.response_503,
 )
 async def login(
     new_user: registration_dto.RegistrationDTO, auth_service: services.AuthService
@@ -42,13 +37,11 @@ async def login(
     summary="Получение анкеты пользователя",
     description="Получение анкеты пользователя",
     operation_id="get_user",
-    responses={
-        400: {"description": "Невалидные данные", "model": common.ErrorMessage},
-        401: {"description": "Невалидный токен", "model": common.ErrorMessage},
-        404: {"description": "Анкета не найдена", "model": common.ErrorMessage},
-        500: {"description": "Ошибка сервера", "model": common.ErrorMessage},
-        503: {"description": "Ошибка сервера", "model": common.ErrorMessage},
-    },
+    responses=responses.response_400
+    | responses.response_401
+    | {404: {"description": "Анкета не найдена"}}
+    | responses.response_500
+    | responses.response_503,
     # dependencies=[fastapi.Depends(auth.verify_access_token)],
 )
 async def get_user(
