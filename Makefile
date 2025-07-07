@@ -31,11 +31,6 @@ test: uv  ## Run tests
 	@echo "Testing code"
 	@uv run pytest
 
-.PHONY: serve
-serve:  ## Run application
-	@echo "ACTION: Run project"
-	@docker compose --env-file .env up --build
-
 .PHONY: make-migration
 make-migration:  ## Generate migration
 	@if [ -z "$(NAME)" ]; then \
