@@ -4,7 +4,7 @@ import pydantic
 import datetime
 
 
-def _now() -> datetime.datetime.date:
+def _now() -> datetime.date:
     return datetime.datetime.now(datetime.timezone.utc).date()
 
 

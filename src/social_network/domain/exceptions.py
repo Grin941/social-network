@@ -42,3 +42,14 @@ class TokenIsExpired(AuthError):
 
     def __init__(self, token: str) -> None:
         super().__init__(message=f"Token {token} is expired")
+
+
+class FernetKeyError(AuthError):
+    code = 6
+
+    def __init__(self) -> None:
+        super().__init__(message="Fernet key must be 32 url-safe base64-encoded bytes")
+
+
+class FernetInvalidTokenError(AuthError):
+    code = 6

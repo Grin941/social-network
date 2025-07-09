@@ -2,15 +2,29 @@
 
 ## Развертывание
 
-**Docker Compose**
+1. Создать файл .env, хранящий sensitive data, согласно [12 factor app](https://12factor.net/config)
+2. Запустить приложение
+
+### Создание .env
+
+В качестве примера воспользуйтесь файлом .env.local
 
 ```shell
-$ docker compose --env-file .env.local up --build
+cp .env.local .env
+vim .env
 ```
 
-Обратите внимание на флаг `--env-file .env.local`, он задает необходимые для работы сервиса переменные окружения.
+### Запуск приложения
 
-## Полезные команды
+```shell
+make serve
+```
+
+или при отсутствии cmake
+
+```shell
+$ set -a && source .env && set +a && docker compose -f devops/social_network/docker-compose.yaml up --build
+```
 
 **Управление проектом**
 

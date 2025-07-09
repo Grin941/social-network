@@ -51,3 +51,18 @@ migrate:  ## Apply migrations
 rollback-migration:  ## Rollback migration
 	@set -a && source .env && set +a && \
 	alembic --config src/social_network/database/migrations/alembic.ini downgrade -1
+
+
+.PHONY: serve
+serve:  ## Run application
+	@set -a && source .env && set +a && \
+	docker compose \
+	-f devops/social_network/docker-compose.yaml \
+	up --build
+
+
+.PHONY: glitchtip
+glitchtip:  ## Run sentry locally
+	@docker compose \
+	-f devops/glitchtip/docker-compose.yaml \
+	up --build

@@ -1,11 +1,11 @@
 {
   "info": {
-    "_postman_id": "071f7133-8d57-4f92-afa5-01767a274cb9",
+    "_postman_id": "04f68cf2-ed5e-4047-aef9-4c519275a9f1",
     "name": "Social Network",
     "description": "OTUS Highload Architect (1.2.0)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "46530720",
-    "_collection_link": "https://alexandergrinenko.postman.co/workspace/351a64ce-38c9-4ae0-8973-9bfd7e8486cd/collection/46530720-071f7133-8d57-4f92-afa5-01767a274cb9?action=share&source=collection_link&creator=46530720"
+    "_collection_link": "https://alexandergrinenko.postman.co/workspace/Alexander-Grinenko's-Workspace~351a64ce-38c9-4ae0-8973-9bfd7e8486cd/collection/46530720-04f68cf2-ed5e-4047-aef9-4c519275a9f1?action=share&source=collection_link&creator=46530720"
   },
   "item": [
     {
@@ -27,7 +27,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-07\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
+              "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -59,7 +59,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-07\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
+                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -87,7 +87,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"user_id\": \"2334da2b-0489-4f3d-9fd6-b616bca82da7\"\n}"
+              "body": "{\n  \"user_id\": \"54a122b7-e331-40f4-b9de-9f65404eb8ad\"\n}"
             },
             {
               "name": "\u041d\u0435\u0432\u0430\u043b\u0438\u0434\u043d\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435",
@@ -96,7 +96,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-07\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
+                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -138,7 +138,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-07\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
+                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -162,7 +162,7 @@
               "header": [
                 {
                   "key": "Retry-After",
-                  "value": "51976991",
+                  "value": "85335024",
                   "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
                 },
                 {
@@ -171,7 +171,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"message\": \"aliqua ut\",\n  \"request_id\": \"36d7a616-848d-4246-b19d-37c044a37b96\",\n  \"code\": 97930387\n}"
+              "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
             },
             {
               "name": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0430",
@@ -185,7 +185,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-07\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
+                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -209,7 +209,7 @@
               "header": [
                 {
                   "key": "Retry-After",
-                  "value": "51976991",
+                  "value": "85335024",
                   "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
                 },
                 {
@@ -218,7 +218,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"message\": \"aliqua ut\",\n  \"request_id\": \"36d7a616-848d-4246-b19d-37c044a37b96\",\n  \"code\": 97930387\n}"
+              "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
             }
           ]
         },
@@ -245,7 +245,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "cupidatat commodo deser",
+                  "value": "sunt ex consequa",
                   "description": "(Required) "
                 }
               ]
@@ -276,7 +276,7 @@
                   "variable": [
                     {
                       "key": "id",
-                      "value": "cupidatat commodo deser",
+                      "value": "sunt ex consequa",
                       "description": "(Required) "
                     }
                   ]
@@ -292,7 +292,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"id\": \"d3fe4d56-0553-4f97-8d13-3d81dd759dba\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-07\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}"
+              "body": "{\n  \"id\": \"bd1574b2-aa9f-48a7-8e45-a55e3823dc1f\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}"
             },
             {
               "name": "\u041d\u0435\u0432\u0430\u043b\u0438\u0434\u043d\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435",
@@ -312,7 +312,7 @@
                   "variable": [
                     {
                       "key": "id",
-                      "value": "cupidatat commodo deser",
+                      "value": "sunt ex consequa",
                       "description": "(Required) "
                     }
                   ]
@@ -348,7 +348,7 @@
                   "variable": [
                     {
                       "key": "id",
-                      "value": "cupidatat commodo deser",
+                      "value": "sunt ex consequa",
                       "description": "(Required) "
                     }
                   ]
@@ -384,7 +384,7 @@
                   "variable": [
                     {
                       "key": "id",
-                      "value": "cupidatat commodo deser",
+                      "value": "sunt ex consequa",
                       "description": "(Required) "
                     }
                   ]
@@ -425,7 +425,7 @@
                   "variable": [
                     {
                       "key": "id",
-                      "value": "cupidatat commodo deser",
+                      "value": "sunt ex consequa",
                       "description": "(Required) "
                     }
                   ]
@@ -437,7 +437,7 @@
               "header": [
                 {
                   "key": "Retry-After",
-                  "value": "51976991",
+                  "value": "85335024",
                   "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
                 },
                 {
@@ -446,7 +446,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"message\": \"aliqua ut\",\n  \"request_id\": \"36d7a616-848d-4246-b19d-37c044a37b96\",\n  \"code\": 97930387\n}"
+              "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
             },
             {
               "name": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0430",
@@ -471,7 +471,7 @@
                   "variable": [
                     {
                       "key": "id",
-                      "value": "cupidatat commodo deser",
+                      "value": "sunt ex consequa",
                       "description": "(Required) "
                     }
                   ]
@@ -483,7 +483,7 @@
               "header": [
                 {
                   "key": "Retry-After",
-                  "value": "51976991",
+                  "value": "85335024",
                   "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
                 },
                 {
@@ -492,7 +492,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"message\": \"aliqua ut\",\n  \"request_id\": \"36d7a616-848d-4246-b19d-37c044a37b96\",\n  \"code\": 97930387\n}"
+              "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
             }
           ]
         }
@@ -514,7 +514,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"id\": \"d26456d5-4d9c-4e59-b961-7903b2e6ef5e\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
+          "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -545,7 +545,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"d26456d5-4d9c-4e59-b961-7903b2e6ef5e\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
+              "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -581,7 +581,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"d26456d5-4d9c-4e59-b961-7903b2e6ef5e\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
+              "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -617,7 +617,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"d26456d5-4d9c-4e59-b961-7903b2e6ef5e\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
+              "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -658,7 +658,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"d26456d5-4d9c-4e59-b961-7903b2e6ef5e\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
+              "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -681,7 +681,7 @@
           "header": [
             {
               "key": "Retry-After",
-              "value": "51976991",
+              "value": "85335024",
               "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
             },
             {
@@ -690,7 +690,7 @@
             }
           ],
           "cookie": [],
-          "body": "{\n  \"message\": \"aliqua ut\",\n  \"request_id\": \"36d7a616-848d-4246-b19d-37c044a37b96\",\n  \"code\": 97930387\n}"
+          "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
         },
         {
           "name": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0430",
@@ -704,7 +704,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"d26456d5-4d9c-4e59-b961-7903b2e6ef5e\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
+              "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -727,7 +727,7 @@
           "header": [
             {
               "key": "Retry-After",
-              "value": "51976991",
+              "value": "85335024",
               "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
             },
             {
@@ -736,15 +736,25 @@
             }
           ],
           "cookie": [],
-          "body": "{\n  \"message\": \"aliqua ut\",\n  \"request_id\": \"36d7a616-848d-4246-b19d-37c044a37b96\",\n  \"code\": 97930387\n}"
+          "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
         }
       ]
     }
   ],
   "variable": [
     {
+      "key": "host",
+      "value": "127.0.0.1",
+      "type": "string"
+    },
+    {
+      "key": "port",
+      "value": "8081",
+      "type": "string"
+    },
+    {
       "key": "baseUrl",
-      "value": "/",
+      "value": "{{host}}:{{port}}",
       "type": "string"
     }
   ]

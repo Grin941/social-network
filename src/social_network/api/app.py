@@ -1,9 +1,9 @@
 import fastapi
 import typing
-import logging
 import datetime
 import contextlib
 
+import sentry_sdk
 from fastapi import encoders, exceptions as fastapi_exceptions
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -20,14 +20,20 @@ from social_network.domain import exceptions as domain_exceptions
 async def _validation_exception_handler(
     request: requests.Request, exc: Exception
 ) -> responses.JSONResponse:
+    to_capture_exception = False
     if isinstance(exc, fastapi_exceptions.RequestValidationError):
         status_code = status.HTTP_400_BAD_REQUEST
     elif isinstance(exc, db_exceptions.ObjectDoesNotExistError):
         status_code = status.HTTP_404_NOT_FOUND
     elif isinstance(exc, domain_exceptions.AuthError):
         status_code = status.HTTP_401_UNAUTHORIZED
+        to_capture_exception = True
     else:
         status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        to_capture_exception = True
+
+    if to_capture_exception:
+        sentry_sdk.capture_exception(exc)
 
     error_code = getattr(exc, "code", None)
     if not isinstance(error_code, int):
@@ -48,7 +54,6 @@ async def _validation_exception_handler(
 
 class ApplicationState(typing.TypedDict):
     settings: settings.SocialNetworkSettings
-    logger: logging.Logger
     session_factory: async_sessionmaker[AsyncSession]
 
 
@@ -59,11 +64,6 @@ async def lifespan(
     social_network_settings = settings.SocialNetworkSettings()
     app.debug = social_network_settings.level == "DEBUG"
 
-    logging.basicConfig(level=social_network_settings.level)
-    logger = logging.getLogger(__name__)
-
-    social_network_settings.print_to_log(logger)
-
     engine = create_async_engine(
         url=social_network_settings.db.connection_url,
         echo=social_network_settings.level == "DEBUG",
@@ -72,7 +72,6 @@ async def lifespan(
 
     yield ApplicationState(
         settings=social_network_settings,
-        logger=logger,
         session_factory=session_factory,
     )
 
@@ -80,7 +79,7 @@ async def lifespan(
 
 
 def customize_openapi(app: fastapi.FastAPI) -> None:
-    for _, method_item in app.openapi().get("paths").items():
+    for _, method_item in app.openapi().get("paths", {}).items():
         for _, param in method_item.items():
             api_responses = param.get("responses")
             # remove 422 response, also can remove other status code

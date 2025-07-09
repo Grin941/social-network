@@ -1,9 +1,14 @@
 from social_network.domain.services import abstract
 
-from social_network.domain.models.user import UserDomain
+from social_network.domain import models, exceptions as domain_exceptions
+from social_network.database import exceptions as database_exceptions
 
 
 class UserService(abstract.AbstractService):
-    async def get_user(self, id_: str) -> UserDomain:
+    async def get_user(self, id_: str) -> models.UserDomain:
         async with self._uow.transaction():
-            return await self._uow.users.find_one(id_)
+            try:
+                user = await self._uow.users.find_one(id_)
+            except database_exceptions.ObjectDoesNotExistError as err:
+                raise domain_exceptions.UserNotFoundError(id_) from err
+            return user

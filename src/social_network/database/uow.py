@@ -1,4 +1,3 @@
-import logging
 import typing
 import types
 
@@ -12,12 +11,8 @@ class UnitOfWork:
         self,
         session_factory: async_sessionmaker[AsyncSession],
         user_repository: repository.UserRepository,
-        timeout_seconds: typing.Optional[int] = None,
-        logger: typing.Optional[logging.Logger] = None,
     ) -> None:
         self._session_factory = session_factory
-        self._timeout_seconds = timeout_seconds
-        self._logger = logger
         self._session: typing.Optional[AsyncSession] = None
 
         self.users = user_repository
