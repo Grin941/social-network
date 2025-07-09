@@ -26,14 +26,16 @@ make serve
 $ set -a && source .env && set +a && docker compose -f devops/social_network/docker-compose.yaml up --build
 ```
 
-**Управление проектом**
+## Локальная разработка
+
+### Управление проектом
 
 - установить необходимые зависимости для локальной разработки
 ```shell
 make install
 ```
 
-**Форматирование**
+### Форматирование
 
 - автоформатирование кода
 ```shell
@@ -44,7 +46,7 @@ make fix
 make lint
 ```
 
-**Тестирование**
+### Тестирование
 
 - запуск `pytest` тестов
 ```shell
