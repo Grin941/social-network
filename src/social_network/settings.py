@@ -105,7 +105,8 @@ class SocialNetworkSettings(pydantic_settings.BaseSettings):
                 },
             },
             "loggers": {
-                "social_network": {"level": self.level, "handlers": ["console"]}
+                "social_network": {"level": self.level, "handlers": ["console"]},
+                "sqlalchemy": {"level": self.level, "handlers": ["console"]},
             },
         }
 
