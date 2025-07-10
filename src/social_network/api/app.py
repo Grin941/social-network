@@ -1,3 +1,5 @@
+import logging
+
 import fastapi
 import typing
 import datetime
@@ -17,6 +19,9 @@ from social_network.database import exceptions as db_exceptions
 from social_network.domain import exceptions as domain_exceptions
 
 
+logger = logging.getLogger(__name__)
+
+
 async def _validation_exception_handler(
     request: requests.Request, exc: Exception
 ) -> responses.JSONResponse:
@@ -33,6 +38,7 @@ async def _validation_exception_handler(
         to_capture_exception = True
 
     if to_capture_exception:
+        logger.exception(exc)
         sentry_sdk.capture_exception(exc)
 
     error_code = getattr(exc, "code", None)
