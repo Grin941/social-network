@@ -1,19 +1,14 @@
 import fastapi
 import typing
 
-from social_network.api.models import (
-    registration as registration_dto,
-    user as user_dto,
-)
-from social_network.domain.models import user as user_domain
-from social_network.api import dependencies, responses
+from social_network.api import dependencies, responses, schema_mappers, models as dto
 
 router = fastapi.APIRouter(prefix="/user")
 
 
 @router.post(
     "/register",
-    response_model=registration_dto.NewUserDTO,
+    response_model=dto.NewUserDTO,
     response_description="Успешная регистрация",
     summary="Регистрация нового пользователя",
     description="Регистрация нового пользователя",
@@ -21,17 +16,17 @@ router = fastapi.APIRouter(prefix="/user")
     responses=responses.response_400 | responses.response_500 | responses.response_503,
 )
 async def login(
-    new_user: registration_dto.RegistrationDTO, auth_service: dependencies.AuthService
-) -> registration_dto.NewUserDTO:
+    new_user: dto.RegistrationDTO, auth_service: dependencies.AuthService
+) -> dto.NewUserDTO:
     user = await auth_service.register(
-        user_domain.NewUserDomain(**new_user.model_dump())
+        schema_mappers.RegistrationMapper.map_dto_to_domain(new_user)
     )
-    return registration_dto.NewUserDTO(user_id=user.id)
+    return schema_mappers.RegistrationMapper.map_domain_to_dto(user)
 
 
 @router.get(
     "/get/{id}",
-    response_model=user_dto.UserDTO,
+    response_model=dto.UserDTO,
     response_description="Успешное получение анкеты пользователя",
     summary="Получение анкеты пользователя",
     description="Получение анкеты пользователя",
@@ -46,6 +41,6 @@ async def login(
 async def get_user(
     id: typing.Annotated[str, fastapi.Path(title="Идентификатор пользователя")],
     user_service: dependencies.UserService,
-) -> user_dto.UserDTO:
+) -> dto.UserDTO:
     user = await user_service.get_user(id)
-    return user_dto.UserDTO(**user.model_dump())
+    return schema_mappers.UserMapper.map_domain_to_dto(user)

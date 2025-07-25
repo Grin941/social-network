@@ -1,14 +1,13 @@
 import fastapi
 
-from social_network.api.models import auth
-from social_network.api import dependencies, responses
+from social_network.api import dependencies, responses, models as dto
 
 router = fastapi.APIRouter()
 
 
 @router.post(
     "/login",
-    response_model=auth.TokenDTO,
+    response_model=dto.TokenDTO,
     response_description="Успешная аутентификация",
     summary="Упрощенный процесс аутентификации",
     description="Упрощенный процесс аутентификации путем передачи идентификатор пользователя и получения токена для дальнейшего прохождения авторизации",
@@ -19,7 +18,7 @@ router = fastapi.APIRouter()
     | responses.response_503,
 )
 async def login(
-    auth_data: auth.AuthDTO, auth_service: dependencies.AuthService
-) -> auth.TokenDTO:
+    auth_data: dto.AuthDTO, auth_service: dependencies.AuthService
+) -> dto.TokenDTO:
     token = await auth_service.login(id_=auth_data.id, password=auth_data.password)
-    return auth.TokenDTO(token=token)
+    return dto.TokenDTO(token=token)
