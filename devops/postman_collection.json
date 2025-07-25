@@ -1,761 +1,771 @@
 {
-  "info": {
-    "_postman_id": "04f68cf2-ed5e-4047-aef9-4c519275a9f1",
-    "name": "Social Network",
-    "description": "OTUS Highload Architect (1.2.0)",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "46530720",
-    "_collection_link": "https://alexandergrinenko.postman.co/workspace/Alexander-Grinenko's-Workspace~351a64ce-38c9-4ae0-8973-9bfd7e8486cd/collection/46530720-04f68cf2-ed5e-4047-aef9-4c519275a9f1?action=share&source=collection_link&creator=46530720"
-  },
-  "item": [
-    {
-      "name": "user",
-      "item": [
-        {
-          "name": "\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f \u043d\u043e\u0432\u043e\u0433\u043e \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/user/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "user",
-                "register"
-              ]
-            },
-            "description": "\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f \u043d\u043e\u0432\u043e\u0433\u043e \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f"
-          },
-          "response": [
-            {
-              "name": "\u0423\u0441\u043f\u0435\u0448\u043d\u0430\u044f \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/user/register",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "user",
-                    "register"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"user_id\": \"54a122b7-e331-40f4-b9de-9f65404eb8ad\"\n}"
-            },
-            {
-              "name": "\u041d\u0435\u0432\u0430\u043b\u0438\u0434\u043d\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435",
-              "originalRequest": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/user/register",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "user",
-                    "register"
-                  ]
-                }
-              },
-              "status": "Bad Request",
-              "code": 400,
-              "_postman_previewlanguage": "text",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "text/plain"
-                }
-              ],
-              "cookie": [],
-              "body": ""
-            },
-            {
-              "name": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0430",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/user/register",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "user",
-                    "register"
-                  ]
-                }
-              },
-              "status": "Internal Server Error",
-              "code": 500,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Retry-After",
-                  "value": "85335024",
-                  "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
-                },
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
-            },
-            {
-              "name": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0430",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/user/register",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "user",
-                    "register"
-                  ]
-                }
-              },
-              "status": "Service Unavailable",
-              "code": 503,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Retry-After",
-                  "value": "85335024",
-                  "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
-                },
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
-            }
-          ]
-        },
-        {
-          "name": "\u041f\u043e\u043b\u0443\u0447\u0435\u043d\u0438\u0435 \u0430\u043d\u043a\u0435\u0442\u044b \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/user/get/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "user",
-                "get",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "sunt ex consequa",
-                  "description": "(Required) "
-                }
-              ]
-            },
-            "description": "\u041f\u043e\u043b\u0443\u0447\u0435\u043d\u0438\u0435 \u0430\u043d\u043a\u0435\u0442\u044b \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f"
-          },
-          "response": [
-            {
-              "name": "\u0423\u0441\u043f\u0435\u0448\u043d\u043e\u0435 \u043f\u043e\u043b\u0443\u0447\u0435\u043d\u0438\u0435 \u0430\u043d\u043a\u0435\u0442\u044b \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f",
-              "originalRequest": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/user/get/:id",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "user",
-                    "get",
-                    ":id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "id",
-                      "value": "sunt ex consequa",
-                      "description": "(Required) "
-                    }
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"id\": \"bd1574b2-aa9f-48a7-8e45-a55e3823dc1f\",\n  \"first_name\": \"\u0418\u043c\u044f\",\n  \"second_name\": \"\u0424\u0430\u043c\u0438\u043b\u0438\u044f\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"\u0425\u043e\u0431\u0431\u0438, \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u044b \u0438 \u0442.\u043f.\",\n  \"city\": \"\u041c\u043e\u0441\u043a\u0432\u0430\"\n}"
-            },
-            {
-              "name": "\u041d\u0435\u0432\u0430\u043b\u0438\u0434\u043d\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/user/get/:id",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "user",
-                    "get",
-                    ":id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "id",
-                      "value": "sunt ex consequa",
-                      "description": "(Required) "
-                    }
-                  ]
-                }
-              },
-              "status": "Bad Request",
-              "code": 400,
-              "_postman_previewlanguage": "text",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "text/plain"
-                }
-              ],
-              "cookie": [],
-              "body": ""
-            },
-            {
-              "name": "\u041d\u0435\u0432\u0430\u043b\u0438\u0434\u043d\u044b\u0439 \u0442\u043e\u043a\u0435\u043d",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/user/get/:id",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "user",
-                    "get",
-                    ":id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "id",
-                      "value": "sunt ex consequa",
-                      "description": "(Required) "
-                    }
-                  ]
-                }
-              },
-              "status": "Unauthorized",
-              "code": 401,
-              "_postman_previewlanguage": "text",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "text/plain"
-                }
-              ],
-              "cookie": [],
-              "body": ""
-            },
-            {
-              "name": "\u0410\u043d\u043a\u0435\u0442\u0430 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u0430",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/user/get/:id",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "user",
-                    "get",
-                    ":id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "id",
-                      "value": "sunt ex consequa",
-                      "description": "(Required) "
-                    }
-                  ]
-                }
-              },
-              "status": "Not Found",
-              "code": 404,
-              "_postman_previewlanguage": "text",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "text/plain"
-                }
-              ],
-              "cookie": [],
-              "body": ""
-            },
-            {
-              "name": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0430",
-              "originalRequest": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/user/get/:id",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "user",
-                    "get",
-                    ":id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "id",
-                      "value": "sunt ex consequa",
-                      "description": "(Required) "
-                    }
-                  ]
-                }
-              },
-              "status": "Internal Server Error",
-              "code": 500,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Retry-After",
-                  "value": "85335024",
-                  "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
-                },
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
-            },
-            {
-              "name": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0430",
-              "originalRequest": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
-                ],
-                "url": {
-                  "raw": "{{baseUrl}}/user/get/:id",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "user",
-                    "get",
-                    ":id"
-                  ],
-                  "variable": [
-                    {
-                      "key": "id",
-                      "value": "sunt ex consequa",
-                      "description": "(Required) "
-                    }
-                  ]
-                }
-              },
-              "status": "Service Unavailable",
-              "code": 503,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Retry-After",
-                  "value": "85335024",
-                  "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
-                },
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "cookie": [],
-              "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "\u0423\u043f\u0440\u043e\u0449\u0435\u043d\u043d\u044b\u0439 \u043f\u0440\u043e\u0446\u0435\u0441\u0441 \u0430\u0443\u0442\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0446\u0438\u0438",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{baseUrl}}/login",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "login"
-          ]
-        },
-        "description": "\u0423\u043f\u0440\u043e\u0449\u0435\u043d\u043d\u044b\u0439 \u043f\u0440\u043e\u0446\u0435\u0441\u0441 \u0430\u0443\u0442\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0446\u0438\u0438 \u043f\u0443\u0442\u0435\u043c \u043f\u0435\u0440\u0435\u0434\u0430\u0447\u0438 \u0438\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0442\u043e\u0440 \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f \u0438 \u043f\u043e\u043b\u0443\u0447\u0435\u043d\u0438\u044f \u0442\u043e\u043a\u0435\u043d\u0430 \u0434\u043b\u044f \u0434\u0430\u043b\u044c\u043d\u0435\u0439\u0448\u0435\u0433\u043e \u043f\u0440\u043e\u0445\u043e\u0436\u0434\u0435\u043d\u0438\u044f \u0430\u0432\u0442\u043e\u0440\u0438\u0437\u0430\u0446\u0438\u0438"
-      },
-      "response": [
-        {
-          "name": "\u0423\u0441\u043f\u0435\u0448\u043d\u0430\u044f \u0430\u0443\u0442\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0446\u0438\u044f",
-          "originalRequest": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "login"
-              ]
-            }
-          },
-          "status": "OK",
-          "code": 200,
-          "_postman_previewlanguage": "json",
-          "header": [
-            {
-              "key": "Content-Type",
-              "value": "application/json"
-            }
-          ],
-          "cookie": [],
-          "body": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c\"\n}"
-        },
-        {
-          "name": "\u041d\u0435\u0432\u0430\u043b\u0438\u0434\u043d\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435",
-          "originalRequest": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "login"
-              ]
-            }
-          },
-          "status": "Bad Request",
-          "code": 400,
-          "_postman_previewlanguage": "text",
-          "header": [
-            {
-              "key": "Content-Type",
-              "value": "text/plain"
-            }
-          ],
-          "cookie": [],
-          "body": ""
-        },
-        {
-          "name": "\u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d",
-          "originalRequest": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "login"
-              ]
-            }
-          },
-          "status": "Not Found",
-          "code": 404,
-          "_postman_previewlanguage": "text",
-          "header": [
-            {
-              "key": "Content-Type",
-              "value": "text/plain"
-            }
-          ],
-          "cookie": [],
-          "body": ""
-        },
-        {
-          "name": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0430",
-          "originalRequest": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "login"
-              ]
-            }
-          },
-          "status": "Internal Server Error",
-          "code": 500,
-          "_postman_previewlanguage": "json",
-          "header": [
-            {
-              "key": "Retry-After",
-              "value": "85335024",
-              "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
-            },
-            {
-              "key": "Content-Type",
-              "value": "application/json"
-            }
-          ],
-          "cookie": [],
-          "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
-        },
-        {
-          "name": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0430",
-          "originalRequest": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"\u0421\u0435\u043a\u0440\u0435\u0442\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "login"
-              ]
-            }
-          },
-          "status": "Service Unavailable",
-          "code": 503,
-          "_postman_previewlanguage": "json",
-          "header": [
-            {
-              "key": "Retry-After",
-              "value": "85335024",
-              "description": "\u0412\u0440\u0435\u043c\u044f, \u0447\u0435\u0440\u0435\u0437 \u043a\u043e\u0442\u043e\u0440\u043e\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437 \u043d\u0443\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0437\u0430\u043f\u0440\u043e\u0441"
-            },
-            {
-              "key": "Content-Type",
-              "value": "application/json"
-            }
-          ],
-          "cookie": [],
-          "body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
-        }
-      ]
-    }
-  ],
-  "variable": [
-    {
-      "key": "host",
-      "value": "127.0.0.1",
-      "type": "string"
-    },
-    {
-      "key": "port",
-      "value": "8080",
-      "type": "string"
-    },
-    {
-      "key": "baseUrl",
-      "value": "{{host}}:{{port}}",
-      "type": "string"
-    }
-  ]
+	"info": {
+		"_postman_id": "e55432cb-a4c6-48f0-8028-d1212e0b2144",
+		"name": "Social Network",
+		"description": "OTUS Highload Architect (1.2.0)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46530720",
+		"_collection_link": "https://alexandergrinenko.postman.co/workspace/Alexander-Grinenko's-Workspace~351a64ce-38c9-4ae0-8973-9bfd7e8486cd/collection/46530720-e55432cb-a4c6-48f0-8028-d1212e0b2144?action=share&source=collection_link&creator=46530720"
+	},
+	"item": [
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "Регистрация нового пользователя",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"password\": \"Секретная строка\",\n  \"first_name\": \"Имя\",\n  \"second_name\": \"Фамилия\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"Хобби, интересы и т.п.\",\n  \"city\": \"Москва\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						},
+						"description": "Регистрация нового пользователя"
+					},
+					"response": [
+						{
+							"name": "Успешная регистрация",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"password\": \"Секретная строка\",\n  \"first_name\": \"Имя\",\n  \"second_name\": \"Фамилия\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"Хобби, интересы и т.п.\",\n  \"city\": \"Москва\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/user/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"register"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"user_id\": \"54a122b7-e331-40f4-b9de-9f65404eb8ad\"\n}"
+						},
+						{
+							"name": "Невалидные данные",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"password\": \"Секретная строка\",\n  \"first_name\": \"Имя\",\n  \"second_name\": \"Фамилия\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"Хобби, интересы и т.п.\",\n  \"city\": \"Москва\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/user/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"register"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Ошибка сервера",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"password\": \"Секретная строка\",\n  \"first_name\": \"Имя\",\n  \"second_name\": \"Фамилия\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"Хобби, интересы и т.п.\",\n  \"city\": \"Москва\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/user/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"register"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Retry-After",
+									"value": "85335024",
+									"description": "Время, через которое еще раз нужно сделать запрос"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
+						},
+						{
+							"name": "Ошибка сервера",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"password\": \"Секретная строка\",\n  \"first_name\": \"Имя\",\n  \"second_name\": \"Фамилия\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"Хобби, интересы и т.п.\",\n  \"city\": \"Москва\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/user/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"register"
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Retry-After",
+									"value": "85335024",
+									"description": "Время, через которое еще раз нужно сделать запрос"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
+						}
+					]
+				},
+				{
+					"name": "Получение анкеты пользователя",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/get/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"get",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "sunt ex consequa",
+									"description": "(Required) "
+								}
+							]
+						},
+						"description": "Получение анкеты пользователя"
+					},
+					"response": [
+						{
+							"name": "Успешное получение анкеты пользователя",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/user/get/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"get",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "sunt ex consequa",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"bd1574b2-aa9f-48a7-8e45-a55e3823dc1f\",\n  \"first_name\": \"Имя\",\n  \"second_name\": \"Фамилия\",\n  \"birthdate\": \"2025-07-09\",\n  \"biography\": \"Хобби, интересы и т.п.\",\n  \"city\": \"Москва\"\n}"
+						},
+						{
+							"name": "Невалидные данные",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/user/get/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"get",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "sunt ex consequa",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Невалидный токен",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/user/get/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"get",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "sunt ex consequa",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Анкета не найдена",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/user/get/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"get",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "sunt ex consequa",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Ошибка сервера",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/user/get/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"get",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "sunt ex consequa",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Retry-After",
+									"value": "85335024",
+									"description": "Время, через которое еще раз нужно сделать запрос"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
+						},
+						{
+							"name": "Ошибка сервера",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/user/get/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"get",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "sunt ex consequa",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "Service Unavailable",
+							"code": 503,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Retry-After",
+									"value": "85335024",
+									"description": "Время, через которое еще раз нужно сделать запрос"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Упрощенный процесс аутентификации",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"Секретная строка\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"login"
+					]
+				},
+				"description": "Упрощенный процесс аутентификации путем передачи идентификатор пользователя и получения токена для дальнейшего прохождения авторизации"
+			},
+			"response": [
+				{
+					"name": "Успешная аутентификация",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"Секретная строка\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c\"\n}"
+				},
+				{
+					"name": "Невалидные данные",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"Секретная строка\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Пользователь не найден",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"Секретная строка\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Ошибка сервера",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"Секретная строка\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Retry-After",
+							"value": "85335024",
+							"description": "Время, через которое еще раз нужно сделать запрос"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
+				},
+				{
+					"name": "Ошибка сервера",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"c271dec2-0683-4997-bd05-281f85df0cc4\",\n  \"password\": \"Секретная строка\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"status": "Service Unavailable",
+					"code": 503,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Retry-After",
+							"value": "85335024",
+							"description": "Время, через которое еще раз нужно сделать запрос"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"message\": \"reprehenderit\",\n  \"request_id\": \"0e24d461-433a-4c2d-9a1e-5bb9bd3ffa76\",\n  \"code\": 82672943\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "127.0.0.1",
+			"type": "string"
+		},
+		{
+			"key": "port",
+			"value": "8081",
+			"type": "string"
+		},
+		{
+			"key": "baseUrl",
+			"value": "{{host}}:{{port}}",
+			"type": "string"
+		}
+	]
 }

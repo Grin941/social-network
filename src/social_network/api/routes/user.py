@@ -6,8 +6,7 @@ from social_network.api.models import (
     user as user_dto,
 )
 from social_network.domain.models import user as user_domain
-from social_network.api import services, responses
-
+from social_network.api import dependencies, responses
 
 router = fastapi.APIRouter(prefix="/user")
 
@@ -22,7 +21,7 @@ router = fastapi.APIRouter(prefix="/user")
     responses=responses.response_400 | responses.response_500 | responses.response_503,
 )
 async def login(
-    new_user: registration_dto.RegistrationDTO, auth_service: services.AuthService
+    new_user: registration_dto.RegistrationDTO, auth_service: dependencies.AuthService
 ) -> registration_dto.NewUserDTO:
     user = await auth_service.register(
         user_domain.NewUserDomain(**new_user.model_dump())
@@ -42,11 +41,11 @@ async def login(
     | {404: {"description": "Анкета не найдена"}}
     | responses.response_500
     | responses.response_503,
-    # dependencies=[fastapi.Depends(auth.verify_access_token)],
+    dependencies=[fastapi.Depends(dependencies.verify_access_token)],
 )
 async def get_user(
     id: typing.Annotated[str, fastapi.Path(title="Идентификатор пользователя")],
-    user_service: services.UserService,
+    user_service: dependencies.UserService,
 ) -> user_dto.UserDTO:
     user = await user_service.get_user(id)
     return user_dto.UserDTO(**user.model_dump())

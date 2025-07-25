@@ -1,4 +1,4 @@
-from social_network.api import services
+from social_network.api.dependencies import services
 from social_network.domain.models import user
 from fastapi import security
 import fastapi
@@ -12,3 +12,6 @@ async def verify_access_token(
     token: typing.Annotated[str, fastapi.Depends(oauth2_scheme)],
 ) -> user.UserDomain:
     return await auth_service.authorize(token)
+
+
+RequestUser = typing.Annotated[user.UserDomain, fastapi.Depends(verify_access_token)]

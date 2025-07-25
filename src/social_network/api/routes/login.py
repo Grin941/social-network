@@ -1,8 +1,7 @@
 import fastapi
 
 from social_network.api.models import auth
-from social_network.api import services, responses
-
+from social_network.api import dependencies, responses
 
 router = fastapi.APIRouter()
 
@@ -20,7 +19,7 @@ router = fastapi.APIRouter()
     | responses.response_503,
 )
 async def login(
-    auth_data: auth.AuthDTO, auth_service: services.AuthService
+    auth_data: auth.AuthDTO, auth_service: dependencies.AuthService
 ) -> auth.TokenDTO:
     token = await auth_service.login(id_=auth_data.id, password=auth_data.password)
     return auth.TokenDTO(token=token)

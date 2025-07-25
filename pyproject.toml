@@ -54,3 +54,23 @@ dev = [
     "ruff>=0.12.1",
     "types-python-jose>=3.5.0.20250531",
 ]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q -v -s --cov=src --disable-pytest-warnings"
+testpaths = [
+    "tests",
+]
+markers = [
+    "use_case"
+]
+
+[tool.coverage.paths]
+source = ["src"]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true

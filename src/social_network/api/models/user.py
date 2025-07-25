@@ -1,3 +1,4 @@
+import typing
 import uuid
 
 import pydantic
@@ -16,6 +17,16 @@ class _UserDTO(pydantic.BaseModel):
         default_factory=str, examples=["Хобби, интересы и т.п."]
     )
     city: str = pydantic.Field(default_factory=str, examples=["Москва"])
+
+    @pydantic.field_validator("birthdate", mode="before")
+    @classmethod
+    def validate_birthdate(cls, v: typing.Any) -> datetime.date:
+        if isinstance(v, datetime.datetime):
+            return v.date()
+        elif isinstance(v, datetime.date):
+            return v
+        else:
+            raise ValueError("invalid birthdate")
 
 
 class UserDTO(_UserDTO):
