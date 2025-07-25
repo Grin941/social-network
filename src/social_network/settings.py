@@ -108,6 +108,7 @@ class SocialNetworkSettings(pydantic_settings.BaseSettings):
                 "social_network": {"level": self.level, "handlers": ["console"]},
                 "sqlalchemy": {"level": self.level, "handlers": ["console"]},
             },
+            "root": {"level": self.level, "handlers": ["console"]},
         }
 
     def print_to_log(self) -> None:
