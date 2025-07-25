@@ -10,8 +10,12 @@ class NoSessionError(DatabaseError):
     code = 1
 
 
-class ObjectDoesNotExistError(DatabaseError):
+class SessionCreationError(DatabaseError):
     code = 2
+
+
+class ObjectDoesNotExistError(DatabaseError):
+    code = 3
 
     def __init__(self, model: str, id_: typing.Any) -> None:
         self._model = model
@@ -21,7 +25,7 @@ class ObjectDoesNotExistError(DatabaseError):
 
 
 class ObjectAlreadyExistsError(DatabaseError):
-    code = 3
+    code = 4
 
     def __init__(self, model: str, filters: dict[str, typing.Any]) -> None:
         self._model = model

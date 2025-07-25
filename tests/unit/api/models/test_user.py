@@ -20,10 +20,12 @@ def test_birthdate_validation() -> None:
         == datetime.datetime.now(tz=datetime.timezone.utc).date()
     )
 
-    with pytest.raises(ValueError):
-        assert models.UserDTO.validate_birthdate(
-            str(datetime.datetime.now(tz=datetime.timezone.utc))
+    assert (
+        models.UserDTO.validate_birthdate(
+            str(datetime.datetime.now(tz=datetime.timezone.utc).date())
         )
+        == datetime.datetime.now(tz=datetime.timezone.utc).date()
+    )
 
     with pytest.raises(ValueError):
         assert models.UserDTO.validate_birthdate(

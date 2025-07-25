@@ -25,6 +25,8 @@ class _UserDTO(pydantic.BaseModel):
             return v.date()
         elif isinstance(v, datetime.date):
             return v
+        elif isinstance(v, str):
+            return datetime.datetime.strptime(v, "%Y-%m-%d").date()
         else:
             raise ValueError("invalid birthdate")
 

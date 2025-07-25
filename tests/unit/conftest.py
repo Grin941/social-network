@@ -9,8 +9,8 @@ from social_network.infrastructure.database.repository import user_repository
 
 
 class UnitOfWorkMock(uow.UnitOfWork):
-    async def __aenter__(self) -> None:
-        return None
+    async def __aenter__(self) -> "UnitOfWorkMock":
+        return self
 
     async def __aexit__(
         self,
