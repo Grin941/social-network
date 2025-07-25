@@ -4,7 +4,10 @@ import typing
 from jose import jwt, JWTError
 from cryptography import fernet
 
-from social_network.database import uow, exceptions as database_exceptions
+from social_network.infrastructure.database import (
+    exceptions as database_exceptions,
+    uow,
+)
 
 from social_network.domain.services import abstract
 

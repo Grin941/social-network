@@ -4,8 +4,8 @@ import typing
 import pytest
 import pytest_mock
 
-from social_network.database import uow
-from social_network.database.repository import user_repository
+from social_network.infrastructure.database import uow
+from social_network.infrastructure.database.repository import user_repository
 
 
 class UnitOfWorkMock(uow.UnitOfWork):

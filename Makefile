@@ -38,19 +38,19 @@ make-migration:  ## Generate migration
         exit 1; \
     fi
 	@set -a && source .env && set +a && \
-	alembic --config src/social_network/database/migrations/alembic.ini revision -m "$(NAME)"
+	alembic --config src/social_network/infrastructure/database/migrations/alembic.ini revision -m "$(NAME)"
 
 
 .PHONY: migrate
 migrate:  ## Apply migrations
 	@set -a && source .env && set +a && \
-	alembic --config src/social_network/database/migrations/alembic.ini upgrade head
+	alembic --config src/social_network/infrastructure/database/migrations/alembic.ini upgrade head
 
 
 .PHONY: rollback-migration
 rollback-migration:  ## Rollback migration
 	@set -a && source .env && set +a && \
-	alembic --config src/social_network/database/migrations/alembic.ini downgrade -1
+	alembic --config src/social_network/infrastructure/database/migrations/alembic.ini downgrade -1
 
 
 .PHONY: serve

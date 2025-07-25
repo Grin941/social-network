@@ -2,7 +2,8 @@ from social_network.domain.services import auth, user
 from starlette import requests
 import typing
 import fastapi
-from social_network.database import uow, repository
+from social_network.infrastructure.database import repository
+from social_network.infrastructure.database import uow
 
 
 async def get_auth_service(request: requests.Request) -> auth.AuthService:

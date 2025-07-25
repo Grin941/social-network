@@ -3,7 +3,8 @@ import types
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from social_network.database import exceptions, repository
+from social_network.infrastructure.database import repository
+from social_network.infrastructure.database import exceptions
 
 
 class UnitOfWork:

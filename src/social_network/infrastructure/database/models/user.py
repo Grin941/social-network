@@ -3,7 +3,7 @@ import datetime
 import sqlalchemy.orm
 from sqlalchemy.ext.asyncio import AsyncAttrs
 
-from social_network.database.models import base
+from social_network.infrastructure.database.models import base
 
 
 class UserORM(AsyncAttrs, base.BaseORM):

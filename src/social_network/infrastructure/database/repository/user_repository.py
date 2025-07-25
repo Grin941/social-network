@@ -1,8 +1,8 @@
 import typing
 import uuid
 
-from social_network.database.repository import abstract_repository
-from social_network.database import exceptions
+from social_network.infrastructure.database.repository import abstract_repository
+from social_network.infrastructure.database import exceptions
 from social_network.domain import models
 
 import sqlalchemy

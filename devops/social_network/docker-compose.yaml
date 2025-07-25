@@ -20,7 +20,7 @@ services:
     build:
       context: ../..
       dockerfile: devops/Dockerfile
-    command: python -m alembic -c social_network/database/migrations/alembic.ini upgrade head
+    command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade head
     environment:
       DB__HOST: ${DB__HOST}
       DB__PORT: ${DB__PORT}

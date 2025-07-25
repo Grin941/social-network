@@ -1,6 +1,6 @@
 import abc
 
-from social_network.database import uow
+from social_network.infrastructure.database import uow
 
 
 class AbstractService(abc.ABC):

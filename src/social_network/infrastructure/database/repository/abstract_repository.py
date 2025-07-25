@@ -1,8 +1,7 @@
 import typing
 import abc
 
-from social_network.database import exceptions
-
+from social_network.infrastructure.database import exceptions
 
 Entity = typing.TypeVar("Entity")
 NewEntity = typing.TypeVar("NewEntity")

@@ -15,7 +15,7 @@ from social_network import settings
 from social_network.api.routes import user as user_routes, login as login_routes
 from social_network.api.models import common
 from social_network.api import requests as api_requests
-from social_network.database import exceptions as db_exceptions
+from social_network.infrastructure.database import exceptions as db_exceptions
 from social_network.domain import exceptions as domain_exceptions
 
 

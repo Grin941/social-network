@@ -1,7 +1,7 @@
 from social_network.domain.services import abstract
 
 from social_network.domain import models, exceptions as domain_exceptions
-from social_network.database import exceptions as database_exceptions
+from social_network.infrastructure.database import exceptions as database_exceptions
 
 
 class UserService(abstract.AbstractService):
