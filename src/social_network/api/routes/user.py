@@ -15,7 +15,7 @@ router = fastapi.APIRouter(prefix="/user")
     operation_id="register_user",
     responses=responses.response_400 | responses.response_500 | responses.response_503,
 )
-async def login(
+async def register(
     new_user: dto.RegistrationDTO, auth_service: dependencies.AuthService
 ) -> dto.NewUserDTO:
     user = await auth_service.register(
