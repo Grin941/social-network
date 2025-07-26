@@ -55,9 +55,9 @@ rollback-migration:  ## Rollback migration
 
 .PHONY: serve
 serve:  ## Run application
-	@set -a && source .env && set +a && \
-	docker compose \
+	@docker compose \
 	-f devops/social_network/docker-compose.yaml \
+	--env-file .env \
 	up --build
 
 
