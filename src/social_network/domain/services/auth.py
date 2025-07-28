@@ -61,7 +61,7 @@ class AuthService(abstract.AbstractService):
             raise domain_exceptions.InvalidTokenError(token)
 
     async def _duplicate_exists(self, item: models.NewUserDomain) -> bool:
-        async with self._uow.transaction():
+        async for _ in self._uow.transaction():
             users = await self._uow.users.find_all(
                 item.model_dump(exclude={"password"})
             )
@@ -75,13 +75,14 @@ class AuthService(abstract.AbstractService):
         if await self._duplicate_exists(new_user):
             raise domain_exceptions.UserAlreadyRegisteredError()
 
-        async with self._uow.transaction():
-            return await self._uow.users.create(
+        async for _ in self._uow.transaction():
+            user = await self._uow.users.create(
                 models.NewUserDomain(
                     **new_user.model_dump(exclude={"password"}),
                     password=self.encrypt_password(password=new_user.password),
                 )
             )
+        return user
 
     async def authorize(self, token: str) -> models.UserDomain:
         payload = self.decode_access_token(token)
@@ -95,7 +96,7 @@ class AuthService(abstract.AbstractService):
         if (user_id := payload.get("sub")) is None:
             raise domain_exceptions.InvalidTokenError(token)
 
-        async with self._uow.transaction():
+        async for _ in self._uow.transaction():
             try:
                 user = await self._uow.users.find_one(user_id)
             except database_exceptions.ObjectDoesNotExistError as exc:
@@ -104,7 +105,7 @@ class AuthService(abstract.AbstractService):
         return user
 
     async def login(self, id_: str, password: str) -> str:
-        async with self._uow.transaction():
+        async for _ in self._uow.transaction():
             try:
                 user = await self._uow.users.find_one(id_)
             except database_exceptions.ObjectDoesNotExistError as err:

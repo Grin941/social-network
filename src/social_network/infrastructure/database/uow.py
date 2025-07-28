@@ -1,5 +1,4 @@
 import asyncio
-import contextlib
 import logging
 import typing
 import types
@@ -110,9 +109,8 @@ class UnitOfWork:
             self._session = None
             await self._init_repositories()
 
-    @contextlib.asynccontextmanager
     async def transaction(self) -> typing.AsyncIterator["UnitOfWork"]:
-        for attempt in retry.retry(
+        async for attempt in retry.aretry(
             exceptions_handlers=get_typical_db_exceptions_handlers()
         ):
             with attempt:
