@@ -1,12 +1,12 @@
 import typing
 import uuid
 
-from social_network.infrastructure.database.repository import abstract_repository
-from social_network.infrastructure.database import exceptions
-from social_network.domain import models
-
 import sqlalchemy
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from social_network.domain import models
+from social_network.infrastructure.database import exceptions
+from social_network.infrastructure.database.repository import abstract_repository
 
 
 class UserRepository(
@@ -27,10 +27,34 @@ class UserRepository(
 
         return await self.find_one(id_)
 
+    async def batch_create(self, items: typing.List[models.NewUserDomain]) -> None:
+        session = self._get_db_session()
+        await session.execute(
+            sqlalchemy.text(
+                "INSERT INTO users (id, first_name, second_name, birthdate, biography, city, password) "
+                "VALUES (:id, :first_name, :second_name, :birthdate, :biography, :city, :password)"
+            ),
+            [item.model_dump() | {"id": str(uuid.uuid4())} for item in items],
+        )
+
+    async def search(
+        self, first_name_prefix: str, second_name_prefix: str
+    ) -> list[models.UserDomain]:
+        session = self._get_db_session()
+        users = await session.execute(
+            sqlalchemy.text(
+                f"SELECT * "
+                f"FROM users "
+                f"WHERE second_name LIKE '{second_name_prefix}%' AND first_name LIKE '{first_name_prefix}%' "
+                f"ORDER BY id"
+            )
+        )
+        return [models.UserDomain(**user) for user in users.mappings().all()]
+
     async def find_one(self, id_: str) -> models.UserDomain:
         session = self._get_db_session()
         users = await session.execute(
-            sqlalchemy.text(f"SELECT * from users where id = '{id_}'")
+            sqlalchemy.text(f"SELECT * FROM users WHERE id = '{id_}'")
         )
         for user in users.mappings().all():
             return models.UserDomain(**user)
@@ -41,7 +65,7 @@ class UserRepository(
         session = self._get_db_session()
         users = await session.execute(
             sqlalchemy.text(
-                f"SELECT * from users where {' AND '.join([f"""{k} = '{str(v)}'""" for k, v in filters.items()])}"
+                f"SELECT * FROM users WHERE {' AND '.join([f"""{k} = '{str(v)}'""" for k, v in filters.items()])}"
             )
         )
         return [models.UserDomain(**user) for user in users.mappings().all()]

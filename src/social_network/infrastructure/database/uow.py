@@ -1,14 +1,13 @@
 import asyncio
 import logging
-import typing
 import types
+import typing
 
 import sqlalchemy
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from social_network.infrastructure.database import repository, exceptions, retry
-
+from social_network.infrastructure.database import exceptions, repository, retry
 
 MAX_CONNECTION_ATTEMPTS: int = 3
 PAUSE_BETWEEN_ATTEMPTS_SECONDS: float = 0.1
@@ -116,3 +115,11 @@ class UnitOfWork:
             with attempt:
                 async with self as transaction:
                     yield transaction
+
+    async def execute_raw_query(
+        self, query: str, params: typing.Optional[dict[str, typing.Any]] = None
+    ) -> sqlalchemy.Result[typing.Any]:
+        if not self._session:
+            raise exceptions.NoSessionError("No session found")
+
+        return await self._session.execute(sqlalchemy.text(query), params)

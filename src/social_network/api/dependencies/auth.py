@@ -1,8 +1,10 @@
+import typing
+
+import fastapi
+from fastapi import security
+
 from social_network.api.dependencies import services
 from social_network.domain.models import user
-from fastapi import security
-import fastapi
-import typing
 
 oauth2_scheme = security.OAuth2PasswordBearer(tokenUrl="login")
 

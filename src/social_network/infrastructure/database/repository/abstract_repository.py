@@ -1,5 +1,5 @@
-import typing
 import abc
+import typing
 
 from social_network.infrastructure.database import exceptions
 

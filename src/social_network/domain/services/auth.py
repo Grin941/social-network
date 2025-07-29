@@ -1,17 +1,14 @@
 import datetime
 import typing
 
-from jose import jwt, JWTError
 from cryptography import fernet
+from jose import JWTError, jwt
 
-from social_network.infrastructure.database import (
-    exceptions as database_exceptions,
-    uow,
-)
-
+from social_network.domain import exceptions as domain_exceptions
+from social_network.domain import models
 from social_network.domain.services import abstract
-
-from social_network.domain import models, exceptions as domain_exceptions
+from social_network.infrastructure.database import exceptions as database_exceptions
+from social_network.infrastructure.database import uow
 
 
 class AuthService(abstract.AbstractService):

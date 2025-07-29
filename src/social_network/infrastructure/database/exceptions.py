@@ -1,4 +1,5 @@
 import typing
+
 from social_network import exceptions
 
 

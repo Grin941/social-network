@@ -1,23 +1,22 @@
+import contextlib
+import datetime
 import logging
+import typing
 
 import fastapi
-import typing
-import datetime
-import contextlib
-
 import sentry_sdk
-from fastapi import encoders, exceptions as fastapi_exceptions
-
+from fastapi import encoders
+from fastapi import exceptions as fastapi_exceptions
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from starlette import requests, responses, status
 
 from social_network import settings
-from social_network.api.routes import user as user_routes, login as login_routes
-from social_network.api.models import common
 from social_network.api import requests as api_requests
-from social_network.infrastructure.database import exceptions as db_exceptions
+from social_network.api.models import common
+from social_network.api.routes import login as login_routes
+from social_network.api.routes import user as user_routes
 from social_network.domain import exceptions as domain_exceptions
-
+from social_network.infrastructure.database import exceptions as db_exceptions
 
 logger = logging.getLogger(__name__)
 

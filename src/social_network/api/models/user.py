@@ -1,8 +1,8 @@
+import datetime
 import typing
 import uuid
 
 import pydantic
-import datetime
 
 
 def _now() -> datetime.date:

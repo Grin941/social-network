@@ -1,10 +1,9 @@
 import contextvars
-import uuid
 import typing
+import uuid
 
 from starlette import requests, responses
 from starlette.middleware import base
-
 
 request_id: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "request_id", default=None

@@ -1,5 +1,6 @@
-import pydantic
 import datetime
+
+import pydantic
 
 
 class NewUserDomain(pydantic.BaseModel):

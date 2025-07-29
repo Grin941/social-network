@@ -8,10 +8,8 @@ from cryptography import fernet
 from jose import jwt
 
 from social_network.domain import models, services
-from social_network.infrastructure.database import (
-    exceptions as database_exceptions,
-    uow,
-)
+from social_network.infrastructure.database import exceptions as database_exceptions
+from social_network.infrastructure.database import uow
 
 
 @pytest.fixture

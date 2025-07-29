@@ -1,7 +1,9 @@
-import fastapi
 import typing
 
-from social_network.api import dependencies, responses, schema_mappers, models as dto
+import fastapi
+
+from social_network.api import dependencies, responses, schema_mappers
+from social_network.api import models as dto
 
 router = fastapi.APIRouter(prefix="/user")
 
@@ -21,7 +23,7 @@ async def register(
     user = await auth_service.register(
         schema_mappers.RegistrationMapper.map_dto_to_domain(new_user)
     )
-    return schema_mappers.RegistrationMapper.map_domain_to_dto(user)
+    return schema_mappers.RegistrationMapper.map_domain_to_user_dto(user)
 
 
 @router.get(
@@ -44,3 +46,25 @@ async def get_user(
 ) -> dto.UserDTO:
     user = await user_service.get_user(id)
     return schema_mappers.UserMapper.map_domain_to_dto(user)
+
+
+@router.get(
+    "/search",
+    response_model=list[dto.UserDTO],
+    response_description="Успешный поиск пользователя",
+    summary="Поиск анкет",
+    description="Поиск анкет",
+    operation_id="search_users",
+    responses=responses.response_400 | responses.response_500 | responses.response_503,
+)
+async def search_users(
+    first_name: typing.Annotated[
+        str, fastapi.Query(title="Условие поиска по имени", examples=["Конст"])
+    ],
+    last_name: typing.Annotated[
+        str, fastapi.Query(title="Условие поиска по фамилии", examples=["Оси"])
+    ],
+    user_service: dependencies.UserService,
+) -> list[dto.UserDTO]:
+    users = await user_service.search_users(first_name=first_name, last_name=last_name)
+    return [schema_mappers.UserMapper.map_domain_to_dto(user) for user in users]

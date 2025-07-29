@@ -1,6 +1,7 @@
 import fastapi
 
-from social_network.api import dependencies, responses, models as dto
+from social_network.api import dependencies, responses
+from social_network.api import models as dto
 
 router = fastapi.APIRouter()
 

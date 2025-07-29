@@ -15,7 +15,8 @@ install: uv  ## Install the virtual environment and install the pre-commit hooks
 .PHONY: fix
 fix: uv  ## Fix lint errors
 	@echo "Fix lint errors"
-	@uv run ruff check ./src ./tests --fix
+	@uv run asort ./src ./tests
+	@uv run ruff check ./src ./tests --extend-select I --fix
 	@uv run ruff format ./src ./tests
 
 .PHONY: lint

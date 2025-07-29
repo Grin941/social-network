@@ -1,6 +1,6 @@
 import pytest
 
-from social_network.domain import exceptions, services, models
+from social_network.domain import exceptions, models, services
 
 
 @pytest.mark.asyncio

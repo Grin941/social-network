@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: ${DB__PASSWORD}
       POSTGRES_DB: ${DB__NAME}
     ports:
-      - "${DB__PORT}:${DB__PORT}"
+      - "${DB__PORT}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 30s
@@ -22,7 +22,7 @@ services:
       dockerfile: devops/Dockerfile
     command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade head
     environment:
-      DB__HOST: ${DB__HOST}
+      DB__HOST: postgres
       DB__PORT: ${DB__PORT}
       DB__USER: ${DB__USER}
       DB__PASSWORD: ${DB__PASSWORD}
@@ -44,7 +44,7 @@ services:
       SERVER__BIND_HOST: "0.0.0.0"
       SERVER__WORKERS: "1"
       DB__TYPENAME: "postgresql+asyncpg"
-      DB__HOST: ${DB__HOST}
+      DB__HOST: postgres
       DB__PORT: ${DB__PORT}
       DB__USER: ${DB__USER}
       DB__PASSWORD: ${DB__PASSWORD}

@@ -8,8 +8,8 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from social_network.settings import DbSettings
 from social_network.infrastructure.database import models
+from social_network.settings import DbSettings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

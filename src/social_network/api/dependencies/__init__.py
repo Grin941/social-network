@@ -1,17 +1,16 @@
-from social_network.api.dependencies.auth import verify_access_token, RequestUser
+from social_network.api.dependencies.auth import RequestUser, verify_access_token
 from social_network.api.dependencies.services import (
-    get_user_service,
-    get_auth_service,
     AuthService,
     UserService,
+    get_auth_service,
+    get_user_service,
 )
 
-
 __all__ = [
-    "verify_access_token",
+    "AuthService",
     "RequestUser",
+    "UserService",
     "get_auth_service",
     "get_user_service",
-    "AuthService",
-    "UserService",
+    "verify_access_token",
 ]

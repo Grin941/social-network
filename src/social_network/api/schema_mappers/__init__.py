@@ -1,7 +1,6 @@
-from social_network.api.schema_mappers.user import UserMapper, RegistrationMapper
-
+from social_network.api.schema_mappers.user import RegistrationMapper, UserMapper
 
 __all__ = [
-    "UserMapper",
     "RegistrationMapper",
+    "UserMapper",
 ]

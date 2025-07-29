@@ -1,7 +1,9 @@
-from social_network.domain.services import auth, user
-from starlette import requests
 import typing
+
 import fastapi
+from starlette import requests
+
+from social_network.domain.services import auth, user
 from social_network.infrastructure.database import repository, uow
 
 

@@ -1,0 +1,30 @@
+services:
+  timescaledb:
+    build: .
+    ports:
+      - '${TIMESCALE_PORT}:5432'
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${TIMESCALE_USER}
+      - POSTGRES_PASSWORD=${TIMESCALE_PASSWORD}
+      - POSTGRES_DB=${TIMESCALE_DATABASE}
+  grafana:
+    image: grafana/grafana:12.1.0
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana-provisioning/:/etc/grafana/provisioning
+    depends_on:
+      - timescaledb
+    environment:
+      - PG_PASSWORD=${TIMESCALE_PASSWORD}
+      - PG_USER=${TIMESCALE_USER}
+      - PG_DB=${TIMESCALE_DATABASE}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+
+volumes:
+  timescaledb_data:
+  grafana-storage:

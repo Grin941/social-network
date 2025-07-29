@@ -3,7 +3,7 @@ import datetime
 
 import pytest
 
-from social_network.domain import models, exceptions, services
+from social_network.domain import exceptions, models, services
 
 
 def test_password_encryption_with_invalid_secret(

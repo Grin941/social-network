@@ -4,7 +4,6 @@ import typing
 import pydantic
 import pydantic_settings
 
-
 logger = logging.getLogger(__name__)
 
 
