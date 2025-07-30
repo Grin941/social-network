@@ -52,8 +52,3 @@ make lint
 ```shell
 make test
 ```
-
-- запуск нагрузочных тестов
-```shell
-locust -f tests/load/search_users_by_name_idx/search.py SearchWithSeparateGinIndexes --timescale
-```

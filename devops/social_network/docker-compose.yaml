@@ -19,7 +19,7 @@ services:
   migration:
     build:
       context: ../..
-      dockerfile: Dockerfile
+      dockerfile: devops/social_network/Dockerfile
     command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade head
     environment:
       DB__HOST: postgres
@@ -34,7 +34,7 @@ services:
   social-network:
     build:
       context: ../..
-      dockerfile: Dockerfile
+      dockerfile: devops/social_network/Dockerfile
     command: python -m social_network.main
     ports:
       - "${SERVER__BIND_PORT}:${SERVER__BIND_PORT}"
