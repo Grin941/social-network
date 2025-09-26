@@ -24,6 +24,6 @@ class UnitOfWorkMock(uow.UnitOfWork):
 @pytest.fixture
 def unit_of_work(mocker: pytest_mock.MockerFixture) -> uow.UnitOfWork:
     return UnitOfWorkMock(
-        session_factory=mocker.AsyncMock(),
+        master_factory=mocker.AsyncMock(),
         user_repository=user_repository.UserRepository(),
     )

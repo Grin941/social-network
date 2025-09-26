@@ -59,7 +59,8 @@ async def _validation_exception_handler(
 
 class ApplicationState(typing.TypedDict):
     settings: settings.SocialNetworkSettings
-    session_factory: async_sessionmaker[AsyncSession]
+    master_factory: async_sessionmaker[AsyncSession]
+    slave_factory: typing.Optional[async_sessionmaker[AsyncSession]]
 
 
 @contextlib.asynccontextmanager
@@ -69,18 +70,30 @@ async def lifespan(
     social_network_settings = settings.SocialNetworkSettings()
     app.debug = social_network_settings.level == "DEBUG"
 
-    engine = create_async_engine(
+    master = create_async_engine(
         url=social_network_settings.db.connection_url,
         echo=social_network_settings.level == "DEBUG",
+        pool_size=social_network_settings.db.pool_size,
     )
-    session_factory = async_sessionmaker(engine, expire_on_commit=False)
+    slave = None
+    if social_network_settings.db.ro_connection_url:
+        slave = create_async_engine(
+            url=social_network_settings.db.ro_connection_url,
+            echo=social_network_settings.level == "DEBUG",
+            pool_size=social_network_settings.db.pool_size,
+        )
 
     yield ApplicationState(
         settings=social_network_settings,
-        session_factory=session_factory,
+        master_factory=async_sessionmaker(master, expire_on_commit=False),
+        slave_factory=None
+        if social_network_settings.db.ro_connection_url is None
+        else async_sessionmaker(slave, expire_on_commit=False),
     )
 
-    await engine.dispose()
+    await master.dispose()
+    if slave:
+        await slave.dispose()
 
 
 def customize_openapi(app: fastapi.FastAPI) -> None:

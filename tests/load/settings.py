@@ -32,7 +32,8 @@ class UserGeneratorSettings(pydantic_settings.BaseSettings):
     batch_count: int = test_const.BATCH_COUNT
     name_split_count: int = test_const.SEARCH_SPLIT_COUNT
     search_ratio: int = 10
-    registration_ratio: int = 1
+    get_ratio: int = 10
+    registration_ratio: int = 10
 
     def print_to_log(self) -> None:
         logger.info(f"user.bio_sentences_count={self.bio_sentences_count}")
@@ -40,6 +41,7 @@ class UserGeneratorSettings(pydantic_settings.BaseSettings):
         logger.info(f"user.batch_count={self.batch_count}")
         logger.info(f"user.name_split_count={self.name_split_count}")
         logger.info(f"user.search_ratio={self.search_ratio}")
+        logger.info(f"user.get_ratio={self.get_ratio}")
         logger.info(f"user.registration_ratio={self.registration_ratio}")
 
 

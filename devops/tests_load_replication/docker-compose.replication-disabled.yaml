@@ -1,0 +1,121 @@
+services:
+  timescaledb:
+    extends:
+      file: ../common-services.yml
+      service: timescaledb-common
+    volumes:
+      - timescaledb-data-disabled-replication:/var/lib/postgresql/data
+    networks:
+      - pg-network-disabled-replication
+
+  postgres:
+    extends:
+      file: ../common-services.yml
+      service: postgres-common
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data-disabled-replication:/var/lib/postgresql/data
+    networks:
+      - pg-network-disabled-replication
+
+  haproxy:
+    extends:
+      file: ../common-services.yml
+      service: haproxy-common
+    volumes:
+      - ./haproxy/haproxy-replication-disabled.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      - pg-network-disabled-replication
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  migration:
+    extends:
+      file: ../common-services.yml
+      service: migration-common
+    command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade 424d3bd19959
+    environment:
+      DB__HOST: postgres
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+    networks:
+      - pg-network-disabled-replication
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  social-network:
+    extends:
+      file: ../common-services.yml
+      service: social-network-common
+    environment:
+      LEVEL: "INFO"
+      SERVER__BIND_PORT: ${SERVER__BIND_PORT}
+      SERVER__BIND_HOST: "0.0.0.0"
+      SERVER__WORKERS: "1"
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+      SENTRY__DSN: ${SENTRY_DSN:-}
+      DB__PORT: ${DB__PORT}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__HOST: haproxy
+      DB__USER: ${DB__USER}
+      DB__NAME: ${DB__NAME}
+      DB__POOL_SIZE: ${DB__POOL_SIZE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - pg-network-disabled-replication
+
+  prometheus:
+    extends:
+      file: ../common-services.yml
+      service: prometheus-common
+    volumes:
+      - ./prometheus/replication-disabled.yml:/etc/prometheus/prometheus.yml
+      - prometheus-disabled-replication:/prometheus
+    networks:
+      - pg-network-disabled-replication
+
+  grafana:
+    extends:
+      file: ../common-services.yml
+      service: grafana-common
+    volumes:
+      - grafana-disabled-replication:/var/lib/grafana
+      - ../monitoring/grafana-provisioning/:/etc/grafana/provisioning
+    networks:
+      - pg-network-disabled-replication
+
+  postgresql-exporter:
+    extends:
+      file: ../common-services.yml
+      service: postgresql-exporter-common
+    ports:
+      - "9187:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@postgres:5432/${DB__NAME}?sslmode=disable"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - pg-network-disabled-replication
+
+volumes:
+  timescaledb-data-disabled-replication:
+  pg-data-disabled-replication:
+  prometheus-disabled-replication:
+  grafana-disabled-replication:
+  postgresql-exporter-disabled-replication:
+
+networks:
+  pg-network-disabled-replication:
+    driver: bridge

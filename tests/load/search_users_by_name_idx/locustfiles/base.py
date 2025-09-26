@@ -59,7 +59,7 @@ class BaseSetupTeardown(mixin.AsyncMixin):
         self._logger = logger
 
         self._uow = uow.UnitOfWork(
-            session_factory=async_sessionmaker(
+            master_factory=async_sessionmaker(
                 create_async_engine(
                     url=load_tests_settings.db.connection_url,
                     echo=load_tests_settings.log_level == "DEBUG",

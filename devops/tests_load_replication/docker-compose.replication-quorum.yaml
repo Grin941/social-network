@@ -1,0 +1,206 @@
+services:
+  etcd0: &etcd-base
+    extends:
+      file: ../common-services.yml
+      service: etcd-common
+    networks:
+      - pg-network-quorum-replication
+    command:
+      - --name=etcd0
+      - --data-dir=/etcd-data
+      - --initial-advertise-peer-urls=http://etcd0:2380
+      - --listen-peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://etcd0:2379
+      - --listen-client-urls=http://0.0.0.0:2379
+      - --initial-cluster=etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+      - --initial-cluster-state=new
+      - --initial-cluster-token=my_secret_token
+      - --enable-v2=true
+
+  etcd1:
+    <<: *etcd-base
+    command:
+      - --name=etcd1
+      - --data-dir=/etcd-data
+      - --initial-advertise-peer-urls=http://etcd1:2380
+      - --listen-peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://etcd1:2379
+      - --listen-client-urls=http://0.0.0.0:2379
+      - --initial-cluster=etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+      - --initial-cluster-state=new
+      - --initial-cluster-token=my_secret_token
+      - --enable-v2=true
+
+  etcd2:
+    <<: *etcd-base
+    command:
+      - --name=etcd2
+      - --data-dir=/etcd-data
+      - --initial-advertise-peer-urls=http://etcd2:2380
+      - --listen-peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://etcd2:2379
+      - --listen-client-urls=http://0.0.0.0:2379
+      - --initial-cluster=etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+      - --initial-cluster-state=new
+      - --initial-cluster-token=my_secret_token
+      - --enable-v2=true
+
+  patroni0: &patroni-base
+    extends:
+      file: ../common-services.yml
+      service: patroni-common
+    environment:
+      PATRONI_API_CONNECT_PORT: ${PATRONI_API_CONNECT_PORT}
+      REPLICATION_NAME: ${REPLICATION_NAME}
+      REPLICATION_PASS: ${REPLICATION_PASS}
+      SU_NAME: ${DB__USER}
+      SU_PASS: ${DB__PASSWORD}
+      POSTGRES_APP_ROLE_PASS: ${POSTGRES_APP_ROLE_PASS}
+    volumes:
+      - ./patroni/patroni.yml:/patroni.yml:ro
+      - ./patroni/entrypoint.sh:/entrypoint.sh:ro
+      - ./patroni-data0:/var/lib/postgresql/patroni/main
+    networks:
+      - pg-network-quorum-replication
+    depends_on:
+      - etcd0
+      - etcd1
+      - etcd2
+
+  patroni1:
+    <<: *patroni-base
+    volumes:
+      - ./patroni/patroni.yml:/patroni.yml:ro
+      - ./patroni/entrypoint.sh:/entrypoint.sh:ro
+      - ./patroni-data1:/var/lib/postgresql/patroni/main
+
+  patroni2:
+    <<: *patroni-base
+    volumes:
+      - ./patroni/patroni.yml:/patroni.yml:ro
+      - ./patroni/entrypoint.sh:/entrypoint.sh:ro
+      - ./patroni-data2:/var/lib/postgresql/patroni/main
+
+  haproxy:
+    extends:
+      file: ../common-services.yml
+      service: haproxy-common
+    volumes:
+      - ./haproxy/haproxy-replication-quorum.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - patroni0
+      - patroni1
+      - patroni2
+    networks:
+      - pg-network-quorum-replication
+
+  timescaledb:
+    extends:
+      file: ../common-services.yml
+      service: timescaledb-common
+    volumes:
+      - timescaledb-data-quorum-replication:/var/lib/postgresql/data
+    networks:
+      - pg-network-quorum-replication
+
+  migration:
+    extends:
+      file: ../common-services.yml
+      service: migration-common
+    command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade 424d3bd19959
+    environment:
+      DB__HOST: haproxy
+      DB__PORT: ${DB__PORT}
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: postgres
+    networks:
+      - pg-network-quorum-replication
+    depends_on:
+      - haproxy
+
+  social-network:
+    extends:
+      file: ../common-services.yml
+      service: social-network-common
+    environment:
+      LEVEL: "INFO"
+      SERVER__BIND_PORT: ${SERVER__BIND_PORT}
+      SERVER__BIND_HOST: "0.0.0.0"
+      SERVER__WORKERS: "1"
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+      SENTRY__DSN: ${SENTRY_DSN:-}
+      DB__PORT: ${DB__PORT}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__HOST: haproxy
+      DB__USER: ${DB__USER}
+      DB__NAME: postgres
+      DB__POOL_SIZE: ${DB__POOL_SIZE}
+      DB__RO_PORT: ${DB__RO_PORT}
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - pg-network-quorum-replication
+
+  prometheus:
+    extends:
+      file: ../common-services.yml
+      service: prometheus-common
+    volumes:
+      - ./prometheus/replication-quorum.yml:/etc/prometheus/prometheus.yml
+      - prometheus-quorum-replication:/prometheus
+    networks:
+      - pg-network-quorum-replication
+
+  grafana:
+    extends:
+      file: ../common-services.yml
+      service: grafana-common
+    volumes:
+      - grafana-quorum-replication:/var/lib/grafana
+      - ../monitoring/grafana-provisioning/:/etc/grafana/provisioning
+    networks:
+      - pg-network-quorum-replication
+
+  postgresql-exporter-patroni0: &pg-exporter-base
+    extends:
+      file: ../common-services.yml
+      service: postgresql-exporter-common
+    ports:
+      - "9187:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@patroni0:5432/postgres?sslmode=disable"
+    depends_on:
+      - patroni0
+    networks:
+      - pg-network-quorum-replication
+
+  postgresql-exporter-patroni1:
+    <<: *pg-exporter-base
+    ports:
+      - "9188:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@patroni1:5432/postgres?sslmode=disable"
+    depends_on:
+      - patroni1
+
+  postgresql-exporter-patroni2:
+    <<: *pg-exporter-base
+    ports:
+      - "9189:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@patroni2:5432/postgres?sslmode=disable"
+    depends_on:
+      - patroni2
+
+volumes:
+  timescaledb-data-quorum-replication:
+  prometheus-quorum-replication:
+  grafana-quorum-replication:
+
+networks:
+  pg-network-quorum-replication:
+    driver: bridge

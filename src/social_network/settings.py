@@ -28,6 +28,7 @@ class DbSettings(pydantic.BaseModel):
     password: str = ""
     host: str = "127.0.0.1"
     port: int = 5432
+    ro_port: typing.Optional[int] = None
     name: str = "socialnetwork"
     pool_size: int = pydantic.Field(default=1, gt=0)
 
@@ -35,12 +36,19 @@ class DbSettings(pydantic.BaseModel):
     def connection_url(self) -> str:
         return f"{self.typename}://{self.username}:{self.password}@{self.host}:{self.port}/{self.name}"
 
+    @property
+    def ro_connection_url(self) -> typing.Optional[str]:
+        if self.ro_port is None:
+            return None
+        return f"{self.typename}://{self.username}:{self.password}@{self.host}:{self.ro_port}/{self.name}"
+
     def print_to_log(self) -> None:
         logger.info(f"db.typename={self.typename}")
         logger.info(f"db.username={self.username}")
         logger.debug(f"db.password={self.password}")
         logger.info(f"db.host={self.host}")
         logger.info(f"db.port={self.port}")
+        logger.info(f"db.ro_port={self.ro_port}")
         logger.info(f"db.name={self.name}")
         logger.info(f"db.pool_size={self.pool_size}")
 

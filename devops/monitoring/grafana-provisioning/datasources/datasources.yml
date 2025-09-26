@@ -1,5 +1,18 @@
 apiVersion: 1
 datasources:
+  - name: prometheus
+    type: prometheus
+    typeName: Prometheus
+    typeLogoUrl: public/plugins/prometheus/img/prometheus_logo.svg
+    access: proxy
+    url: "http://prometheus:9090"
+    user: ""
+    database: ""
+    basicAuth: false
+    isDefault: false
+    jsonData:
+      pdcInjected: false
+    orgId: 1
   - name: locust_timescale
     type: postgres
     access: proxy

@@ -1,4 +1,5 @@
 import asyncio
+import enum
 import logging
 import types
 import typing
@@ -11,6 +12,11 @@ from social_network.infrastructure.database import exceptions, repository, retry
 
 MAX_CONNECTION_ATTEMPTS: int = 3
 PAUSE_BETWEEN_ATTEMPTS_SECONDS: float = 0.1
+
+
+class Mode(str, enum.Enum):
+    read = "read"
+    write = "write"
 
 
 logger = logging.getLogger(__name__)
@@ -34,21 +40,30 @@ def get_typical_db_exceptions_handlers(
 class UnitOfWork:
     def __init__(
         self,
-        session_factory: async_sessionmaker[AsyncSession],
+        master_factory: async_sessionmaker[AsyncSession],
         user_repository: repository.UserRepository,
+        slave_factory: typing.Optional[async_sessionmaker[AsyncSession]] = None,
         timeout_seconds: int = 0,
     ) -> None:
-        self._session_factory = session_factory
+        self._master_factory = master_factory
+        self._slave_factory = slave_factory
         self._session: typing.Optional[AsyncSession] = None
         self._timeout_seconds = timeout_seconds
+        self._mode: Mode = Mode.write
 
         self.users = user_repository
+
+    def _get_session(self) -> AsyncSession:
+        if self._mode == Mode.write or not self._slave_factory:
+            return self._master_factory()
+
+        return self._slave_factory()
 
     async def __aenter__(self) -> "UnitOfWork":
         checking_connection_attempts = MAX_CONNECTION_ATTEMPTS
         session_is_valid: bool = False
         while not session_is_valid and checking_connection_attempts > 0:
-            session = self._session_factory()
+            session = self._get_session()
             try:
                 if self._timeout_seconds > 0:
                     await session.execute(
@@ -108,7 +123,10 @@ class UnitOfWork:
             self._session = None
             await self._init_repositories()
 
-    async def transaction(self) -> typing.AsyncIterator["UnitOfWork"]:
+    async def transaction(
+        self, read_only: bool = False
+    ) -> typing.AsyncIterator["UnitOfWork"]:
+        self._mode = Mode.read if read_only else Mode.write
         async for attempt in retry.aretry(
             exceptions_handlers=get_typical_db_exceptions_handlers()
         ):

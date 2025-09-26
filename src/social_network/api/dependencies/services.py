@@ -10,7 +10,8 @@ from social_network.infrastructure.database import repository, uow
 async def get_auth_service(request: requests.Request) -> auth.AuthService:
     return auth.AuthService(
         unit_of_work=uow.UnitOfWork(
-            session_factory=request.state.session_factory,
+            master_factory=request.state.master_factory,
+            slave_factory=request.state.slave_factory,
             user_repository=repository.UserRepository(),
         ),
         secret=request.state.settings.auth.secret,
@@ -22,7 +23,8 @@ async def get_auth_service(request: requests.Request) -> auth.AuthService:
 async def get_user_service(request: requests.Request) -> user.UserService:
     return user.UserService(
         unit_of_work=uow.UnitOfWork(
-            session_factory=request.state.session_factory,
+            master_factory=request.state.master_factory,
+            slave_factory=request.state.slave_factory,
             user_repository=repository.UserRepository(),
         ),
     )

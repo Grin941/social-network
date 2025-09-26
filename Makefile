@@ -39,7 +39,7 @@ make-migration:  ## Generate migration
         exit 1; \
     fi
 	@set -a && source .env && set +a && \
-	alembic --config src/social_network/infrastructure/database/migrations/alembic.ini revision -m "$(NAME)"
+	alembic --config src/social_network/infrastructure/database/migrations/alembic.ini revision --autogenerate -m "$(NAME)"
 
 
 .PHONY: migrate
@@ -56,10 +56,18 @@ rollback-migration:  ## Rollback migration
 
 .PHONY: serve
 serve:  ## Run application
-	@docker compose \
+	@set -a && source .env && set +a && \
+	docker compose \
 	-f devops/social_network/docker-compose.yaml \
-	--env-file .env \
 	up --build
+
+
+.PHONY: clear
+clear:  ## Clear docker artifacts
+	@set -a && source .env && set +a && \
+	docker compose \
+	-f devops/social_network/docker-compose.yaml \
+	down --volumes
 
 
 .PHONY: glitchtip

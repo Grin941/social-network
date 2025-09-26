@@ -23,7 +23,7 @@ make serve
 или при отсутствии cmake
 
 ```shell
-$ docker compose -f devops/social_network/docker-compose.yaml --env-file .env up --build
+$ set -a && source .env && set +a && docker compose -f devops/social_network/docker-compose.yaml up --build
 ```
 
 ## Локальная разработка

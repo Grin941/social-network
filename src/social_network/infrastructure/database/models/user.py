@@ -30,3 +30,18 @@ class UserORM(AsyncAttrs, base.BaseORM):
     password: sqlalchemy.orm.Mapped[str] = sqlalchemy.orm.MappedColumn(
         sqlalchemy.VARCHAR(256)
     )
+
+    __table_args__ = (
+        sqlalchemy.Index(
+            "first_name_gin_idx",
+            "first_name",
+            postgresql_using="gin",
+            postgresql_ops={"first_name": "gin_trgm_ops"},
+        ),
+        sqlalchemy.Index(
+            "second_name_gin_idx",
+            "second_name",
+            postgresql_using="gin",
+            postgresql_ops={"second_name": "gin_trgm_ops"},
+        ),
+    )

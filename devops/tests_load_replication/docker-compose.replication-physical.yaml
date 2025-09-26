@@ -1,0 +1,192 @@
+services:
+  timescaledb:
+    extends:
+      file: ../common-services.yml
+      service: timescaledb-common
+    volumes:
+      - timescaledb-data-physical-replication:/var/lib/postgresql/data
+    networks:
+      - pg-network-physical-replication
+
+  master:
+    extends:
+      file: ../common-services.yml
+      service: postgres-common
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data-master-physical-replication:/var/lib/postgresql/data
+      - ./master_config/entrypoint-init:/docker-entrypoint-initdb.d
+      - ./master_config/postgresql-data:/etc/postgresql
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    networks:
+      - pg-network-physical-replication
+
+  slave1: &replica-base
+    extends:
+      file: ../common-services.yml
+      service: postgres-common
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg-data-slave1-physical-replication:/var/lib/postgresql/data
+      - ./slave_config/slave1-data:/etc/postgresql
+    command: |
+      bash -c "
+      export PGPASSWORD='pass' && rm -rf /var/lib/postgresql/data/* && pg_basebackup --pgdata=/var/lib/postgresql/data -R --host=master --port=5432 --wal-method=stream -U replicator -P;
+      cp /etc/postgresql/* /var/lib/postgresql/data;
+      chown -R postgres:postgres /var/lib/postgresql/data && chmod 0700 /var/lib/postgresql/data;
+      su postgres -c postgres;
+      "
+    depends_on:
+      master:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - pg-network-physical-replication
+
+  slave2:
+    <<: *replica-base
+    ports:
+      - "5444:5432"
+    volumes:
+      - pg-data-slave2-physical-replication:/var/lib/postgresql/data
+      - ./slave_config/slave2-data:/etc/postgresql
+    depends_on:
+      master:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+
+  haproxy:
+    extends:
+      file: ../common-services.yml
+      service: haproxy-common
+    volumes:
+      - ./haproxy/haproxy-replication-physical.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      - pg-network-physical-replication
+    depends_on:
+      master:
+        condition: service_healthy
+      slave1:
+        condition: service_healthy
+      slave2:
+        condition: service_healthy
+
+  migration:
+    extends:
+      file: ../common-services.yml
+      service: migration-common
+    command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade 424d3bd19959
+    environment:
+      DB__HOST: master
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+    networks:
+      - pg-network-physical-replication
+    depends_on:
+      master:
+        condition: service_healthy
+
+  social-network:
+    extends:
+      file: ../common-services.yml
+      service: social-network-common
+    environment:
+      LEVEL: "INFO"
+      SERVER__BIND_PORT: ${SERVER__BIND_PORT}
+      SERVER__BIND_HOST: "0.0.0.0"
+      SERVER__WORKERS: "1"
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+      SENTRY__DSN: ${SENTRY_DSN:-}
+      DB__PORT: ${DB__PORT}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__HOST: haproxy
+      DB__USER: ${DB__USER}
+      DB__NAME: ${DB__NAME}
+      DB__POOL_SIZE: ${DB__POOL_SIZE}
+      DB__RO_PORT: ${DB__RO_PORT}
+    depends_on:
+      master:
+        condition: service_healthy
+      slave1:
+        condition: service_healthy
+      slave2:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - pg-network-physical-replication
+
+  prometheus:
+    extends:
+      file: ../common-services.yml
+      service: prometheus-common
+    volumes:
+      - ./prometheus/replication-physical.yml:/etc/prometheus/prometheus.yml
+      - prometheus-physical-replication:/prometheus
+    networks:
+      - pg-network-physical-replication
+
+  grafana:
+    extends:
+      file: ../common-services.yml
+      service: grafana-common
+    volumes:
+      - grafana-physical-replication:/var/lib/grafana
+      - ../monitoring/grafana-provisioning/:/etc/grafana/provisioning
+    networks:
+      - pg-network-physical-replication
+
+  postgresql-exporter-master: &pg-exporter-base
+    extends:
+      file: ../common-services.yml
+      service: postgresql-exporter-common
+    ports:
+      - "9187:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@master:5432/${DB__NAME}?sslmode=disable"
+    depends_on:
+      master:
+        condition: service_healthy
+    networks:
+      - pg-network-physical-replication
+
+  postgresql-exporter-slave1:
+    <<: *pg-exporter-base
+    ports:
+      - "9188:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@slave1:5432/${DB__NAME}?sslmode=disable"
+    depends_on:
+      slave1:
+        condition: service_healthy
+
+  postgresql-exporter-slave2:
+    <<: *pg-exporter-base
+    ports:
+      - "9189:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@slave2:5432/${DB__NAME}?sslmode=disable"
+    depends_on:
+      slave2:
+        condition: service_healthy
+
+volumes:
+  pg-data-master-physical-replication:
+  pg-data-slave1-physical-replication:
+  pg-data-slave2-physical-replication:
+  prometheus-physical-replication:
+  grafana-physical-replication:
+  postgresql-exporter-physical-replication:
+  timescaledb-data-physical-replication:
+
+networks:
+  pg-network-physical-replication:
+    driver: bridge

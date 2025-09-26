@@ -1,29 +1,20 @@
 services:
   postgres:
-    image: postgres:17.5
-    environment:
-      POSTGRES_USER: ${DB__USER}
-      POSTGRES_PASSWORD: ${DB__PASSWORD}
-      POSTGRES_DB: ${DB__NAME}
+    extends:
+      file: ../common-services.yml
+      service: postgres-common
     ports:
       - "${DB__PORT}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    restart: unless-stopped
     volumes:
       - pg-data:/var/lib/postgresql/data
 
   migration:
-    build:
-      context: ../..
-      dockerfile: devops/social_network/Dockerfile
-    command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade head
+    extends:
+      file: ../common-services.yml
+      service: migration-common
     environment:
       DB__HOST: postgres
-      DB__PORT: ${DB__PORT}
+      DB__PORT: 5432
       DB__USER: ${DB__USER}
       DB__PASSWORD: ${DB__PASSWORD}
       DB__NAME: ${DB__NAME}
@@ -32,12 +23,9 @@ services:
         condition: service_healthy
 
   social-network:
-    build:
-      context: ../..
-      dockerfile: devops/social_network/Dockerfile
-    command: python -m social_network.main
-    ports:
-      - "${SERVER__BIND_PORT}:${SERVER__BIND_PORT}"
+    extends:
+      file: ../common-services.yml
+      service: social-network-common
     environment:
       LEVEL: "INFO"
       SERVER__BIND_PORT: ${SERVER__BIND_PORT}
@@ -45,7 +33,7 @@ services:
       SERVER__WORKERS: "1"
       DB__TYPENAME: "postgresql+asyncpg"
       DB__HOST: postgres
-      DB__PORT: ${DB__PORT}
+      DB__PORT: 5432
       DB__USER: ${DB__USER}
       DB__PASSWORD: ${DB__PASSWORD}
       DB__NAME: ${DB__NAME}
