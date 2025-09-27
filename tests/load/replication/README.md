@@ -164,16 +164,6 @@ Latency = 11, что не отличается от прежнего показ�
 set -a && source .env && set +a && docker compose -f devops/tests_load_replication/docker-compose.replication-quorum.yaml  up --build
 ```
 
-Если сервисы patroni отдают ошибку FATAL: data directory "/var/lib/postgresql/patroni/main" has invalid permissions, то нужно
-```shell
-;1. Поменять права volumes
-chmod 0750 ./devops/tests_load_replication/patroni-data*
-
-;2. Перезагрузить сервисы
-set -a && source .env && set +a && docker compose -f devops/tests_load_replication/docker-compose.replication-quorum.yaml  down --volumes
-set -a && source .env && set +a && docker compose -f devops/tests_load_replication/docker-compose.replication-quorum.yaml  up --build
-```
-
 Запускаем тест
 ```shell
 set -a && source .env && set +a && locust -f tests/load/replication/locustfiles/base.py --timescale --headless

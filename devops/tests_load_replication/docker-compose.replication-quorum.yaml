@@ -55,11 +55,10 @@ services:
       REPLICATION_PASS: ${REPLICATION_PASS}
       SU_NAME: ${DB__USER}
       SU_PASS: ${DB__PASSWORD}
-      POSTGRES_APP_ROLE_PASS: ${POSTGRES_APP_ROLE_PASS}
     volumes:
       - ./patroni/patroni.yml:/patroni.yml:ro
-      - ./patroni/entrypoint.sh:/entrypoint.sh:ro
-      - ./patroni-data0:/var/lib/postgresql/patroni/main
+      - ./patroni/entrypoint.sh:/entrypoint.sh
+      - patroni0-quorum-replication:/data/pg-01
     networks:
       - pg-network-quorum-replication
     depends_on:
@@ -71,15 +70,15 @@ services:
     <<: *patroni-base
     volumes:
       - ./patroni/patroni.yml:/patroni.yml:ro
-      - ./patroni/entrypoint.sh:/entrypoint.sh:ro
-      - ./patroni-data1:/var/lib/postgresql/patroni/main
+      - ./patroni/entrypoint.sh:/entrypoint.sh
+      - patroni1-quorum-replication:/data/pg-01
 
   patroni2:
     <<: *patroni-base
     volumes:
       - ./patroni/patroni.yml:/patroni.yml:ro
-      - ./patroni/entrypoint.sh:/entrypoint.sh:ro
-      - ./patroni-data2:/var/lib/postgresql/patroni/main
+      - ./patroni/entrypoint.sh:/entrypoint.sh
+      - patroni2-quorum-replication:/data/pg-01
 
   haproxy:
     extends:
@@ -113,7 +112,7 @@ services:
       DB__PORT: ${DB__PORT}
       DB__USER: ${DB__USER}
       DB__PASSWORD: ${DB__PASSWORD}
-      DB__NAME: postgres
+      DB__NAME: ${DB__NAME}
     networks:
       - pg-network-quorum-replication
     depends_on:
@@ -136,7 +135,7 @@ services:
       DB__PASSWORD: ${DB__PASSWORD}
       DB__HOST: haproxy
       DB__USER: ${DB__USER}
-      DB__NAME: postgres
+      DB__NAME: ${DB__NAME}
       DB__POOL_SIZE: ${DB__POOL_SIZE}
       DB__RO_PORT: ${DB__RO_PORT}
     depends_on:
@@ -172,7 +171,7 @@ services:
     ports:
       - "9187:9187"
     environment:
-      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@patroni0:5432/postgres?sslmode=disable"
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@patroni0:5432/${DB__NAME}?sslmode=disable"
     depends_on:
       - patroni0
     networks:
@@ -183,7 +182,7 @@ services:
     ports:
       - "9188:9187"
     environment:
-      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@patroni1:5432/postgres?sslmode=disable"
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@patroni1:5432/${DB__NAME}?sslmode=disable"
     depends_on:
       - patroni1
 
@@ -192,7 +191,7 @@ services:
     ports:
       - "9189:9187"
     environment:
-      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@patroni2:5432/postgres?sslmode=disable"
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@patroni2:5432/${DB__NAME}?sslmode=disable"
     depends_on:
       - patroni2
 
@@ -200,6 +199,9 @@ volumes:
   timescaledb-data-quorum-replication:
   prometheus-quorum-replication:
   grafana-quorum-replication:
+  patroni0-quorum-replication:
+  patroni1-quorum-replication:
+  patroni2-quorum-replication:
 
 networks:
   pg-network-quorum-replication:

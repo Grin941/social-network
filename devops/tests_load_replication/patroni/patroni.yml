@@ -10,9 +10,6 @@ bootstrap:
     postgresql:
       use_pg_rewind: true
 
-  postgresql:
-    use_pg_rewind: true
-
   initdb:
   - encoding: UTF8
   - data-checksums
@@ -27,6 +24,8 @@ bootstrap:
   - host replication replicator 0.0.0.0/0 md5
   - host all all all scram-sha-256
 
+  post_bootstrap: psql -c "CREATE DATABASE socialnetwork OWNER socnet;"
+
 etcd:
   hosts:
   - etcd0:2379
@@ -35,9 +34,9 @@ etcd:
 
 postgresql:
   listen: 0.0.0.0:5432
-  data_dir: /var/lib/postgresql/patroni/main
+  config_dir: /tmp/pg-01
+  data_dir: /tmp/pg-01
   bin_dir: /usr/lib/postgresql/17/bin
-  pgpass: /tmp/pgpass0
   parameters:
     unix_socket_directories: /var/run/postgresql
 
