@@ -69,12 +69,12 @@
 
 Запускаем приложение
 ```shell
-set -a && source .env && set +a && docker compose -f devops/tests_load_replication/docker-compose.replication-disabled.yaml up --build
+set -a && source .env && set +a && docker compose -f devops/test_replication/docker-compose.replication-disabled.yaml up --build
 ```
 
 Запускаем тест
 ```shell
-set -a && source .env && set +a && locust -f tests/load/replication/locustfiles/base.py --timescale --headless
+set -a && source .env && set +a && locust -f tests/load/test_replication/locustfiles/base.py --timescale --headless
 ```
 
 #### Информация о нагрузке
@@ -118,7 +118,7 @@ set -a && source .env && set +a && docker compose -f devops/social_network/docke
 
 Запускаем тест
 ```shell
-set -a && source .env && set +a && locust -f tests/load/replication/locustfiles/base.py --timescale --headless
+set -a && source .env && set +a && locust -f tests/load/test_replication/locustfiles/base.py --timescale --headless
 ```
 
 ![Конфигурация](./media/repl-async-haproxy.png)
@@ -161,12 +161,12 @@ Latency = 11, что не отличается от прежнего показ�
 
 Запускаем приложение
 ```shell
-set -a && source .env && set +a && docker compose -f devops/tests_load_replication/docker-compose.replication-quorum.yaml  up --build
+set -a && source .env && set +a && docker compose -f devops/test_replication/docker-compose.replication-quorum.yaml  up --build
 ```
 
 Запускаем тест
 ```shell
-set -a && source .env && set +a && locust -f tests/load/replication/locustfiles/base.py --timescale --headless
+set -a && source .env && set +a && locust -f tests/load/test_replication/locustfiles/base.py --timescale --headless
 ```
 
 ![Конфигурация](./media/patroni-haproxy.png)
@@ -210,12 +210,12 @@ Latency = 11, что не отличается от прежнего показ�
 
 Запускаем приложение
 ```shell
-set -a && source .env && set +a && docker compose -f devops/tests_load_replication/docker-compose.replication-quorum.yaml  up --build
+set -a && source .env && set +a && docker compose -f devops/test_replication/docker-compose.replication-quorum.yaml  up --build
 ```
 
 Запускаем тест
 ```shell
-set -a && source .env && set +a && locust -f tests/load/replication/locustfiles/base.py --timescale --headless
+set -a && source .env && set +a && locust -f tests/load/test_replication/locustfiles/base.py --timescale --headless
 ```
 
 Отключаем контейнер с мастером

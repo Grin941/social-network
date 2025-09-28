@@ -1,3 +1,4 @@
+import abc
 import asyncio
 import enum
 import logging
@@ -8,7 +9,7 @@ import sqlalchemy
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from social_network.infrastructure.database import exceptions, repository, retry
+from social_network.infrastructure.database import exceptions, retry
 
 MAX_CONNECTION_ATTEMPTS: int = 3
 PAUSE_BETWEEN_ATTEMPTS_SECONDS: float = 0.1
@@ -37,21 +38,20 @@ def get_typical_db_exceptions_handlers(
     } | (extra_handlers or {})
 
 
-class UnitOfWork:
+class AbstractUnitOfWork(abc.ABC):
     def __init__(
         self,
+        database_name: str,
         master_factory: async_sessionmaker[AsyncSession],
-        user_repository: repository.UserRepository,
         slave_factory: typing.Optional[async_sessionmaker[AsyncSession]] = None,
         timeout_seconds: int = 0,
     ) -> None:
+        self._database_name = database_name
         self._master_factory = master_factory
         self._slave_factory = slave_factory
         self._session: typing.Optional[AsyncSession] = None
         self._timeout_seconds = timeout_seconds
         self._mode: Mode = Mode.write
-
-        self.users = user_repository
 
     def _get_session(self) -> AsyncSession:
         if self._mode == Mode.write or not self._slave_factory:
@@ -59,7 +59,7 @@ class UnitOfWork:
 
         return self._slave_factory()
 
-    async def __aenter__(self) -> "UnitOfWork":
+    async def __aenter__(self) -> "AbstractUnitOfWork":
         checking_connection_attempts = MAX_CONNECTION_ATTEMPTS
         session_is_valid: bool = False
         while not session_is_valid and checking_connection_attempts > 0:
@@ -71,6 +71,11 @@ class UnitOfWork:
                             f"SET STATEMENT_TIMEOUT={self._timeout_seconds}s"
                         )
                     )
+                await session.execute(
+                    sqlalchemy.text(
+                        f"SELECT EXISTS (SELECT 1 FROM pg_database WHERE datname = '{self._database_name}')"
+                    )
+                )
                 await self._init_repositories(session)
                 self._session = session
                 session_is_valid = True
@@ -86,15 +91,19 @@ class UnitOfWork:
                         f"Exceed {MAX_CONNECTION_ATTEMPTS} db connection attempts"
                     ) from exc
                 await asyncio.sleep(PAUSE_BETWEEN_ATTEMPTS_SECONDS)
+            except ConnectionError:
+                # Возможно, до RO-реплики доезжают DDL изменения. Переключаем запросы на master-реплику
+                self._mode = Mode.write
+                checking_connection_attempts -= 1
         if session_is_valid:
             logger.debug("Unit of work started")
 
         return self
 
+    @abc.abstractmethod
     async def _init_repositories(
         self, session: typing.Optional[AsyncSession] = None
-    ) -> None:
-        self.users(session)
+    ) -> None: ...
 
     async def __aexit__(
         self,
@@ -125,7 +134,7 @@ class UnitOfWork:
 
     async def transaction(
         self, read_only: bool = False
-    ) -> typing.AsyncIterator["UnitOfWork"]:
+    ) -> typing.AsyncIterator["AbstractUnitOfWork"]:
         self._mode = Mode.read if read_only else Mode.write
         async for attempt in retry.aretry(
             exceptions_handlers=get_typical_db_exceptions_handlers()
@@ -137,6 +146,7 @@ class UnitOfWork:
     async def execute_raw_query(
         self, query: str, params: typing.Optional[dict[str, typing.Any]] = None
     ) -> sqlalchemy.Result[typing.Any]:
+        self._mode = Mode.write
         if not self._session:
             raise exceptions.NoSessionError("No session found")
 

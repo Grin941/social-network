@@ -1,6 +1,6 @@
 import locust
 
-from tests.load.search_users_by_name_idx.locustfiles import base
+from tests.load.test_indexes.locustfiles import base
 
 
 @locust.events.test_start.add_listener

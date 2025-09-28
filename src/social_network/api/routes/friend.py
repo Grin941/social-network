@@ -1,0 +1,53 @@
+import typing
+import uuid
+
+import fastapi
+from fastapi import status
+
+from social_network.api import dependencies, responses, schema_mappers
+from social_network.api import models as dto
+
+router = fastapi.APIRouter(prefix="/friend")
+
+
+@router.put(
+    "/set/{user_id}",
+    response_model=dto.FriendDTO,
+    response_description="Пользователь успешно указал своего друга",
+    summary="Добавление пользователя в друзья",
+    description="Добавление пользователя в друзья",
+    operation_id="set_friend",
+    responses={404: {"description": "Пользователь не найден"}}
+    | responses.response_401
+    | responses.response_500
+    | responses.response_503,
+)
+async def set_friend(
+    user_id: typing.Annotated[uuid.UUID, fastapi.Path(title="Идентификатор друга")],
+    request_user: dependencies.RequestUser,
+    friend_service: dependencies.FriendService,
+) -> dto.FriendDTO:
+    friendship = await friend_service.make_friendship(
+        user=request_user, friend_id=user_id
+    )
+    return schema_mappers.FriendMapper.map_domain_to_dto(friendship)
+
+
+@router.put(
+    "/delete/{user_id}",
+    response_description="Пользователь успешно удалил из друзей пользователя",
+    summary="Удаление пользователя из друзей",
+    description="Удаление пользователя из друзей",
+    operation_id="delete_friend",
+    responses={404: {"description": "Пользователь не найден"}}
+    | responses.response_401
+    | responses.response_500
+    | responses.response_503,
+)
+async def delete_friend(
+    user_id: typing.Annotated[uuid.UUID, fastapi.Path(title="Идентификатор друга")],
+    request_user: dependencies.RequestUser,
+    friend_service: dependencies.FriendService,
+) -> fastapi.Response:
+    await friend_service.delete_friendship(user=request_user, friend_id=user_id)
+    return fastapi.Response(status_code=status.HTTP_200_OK)

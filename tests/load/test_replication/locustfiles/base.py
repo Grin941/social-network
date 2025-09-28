@@ -1,5 +1,6 @@
 import json
 import logging
+import typing
 from logging import config as logging_config
 
 import locust
@@ -26,39 +27,40 @@ def on_locust_init(environment, **kwargs) -> None:
     environment.parsed_options.pgdatabase = load_tests_settings.timescale.database
 
 
-class BaseSearchShape(shape.DynamicUserShape):
+class SearchShape(shape.DynamicUserShape):
     stages = [
         shape.Stage(
             users=1,
             spawn_rate=1,
-            duration=30,
+            duration=60,
         ),
         shape.Stage(
             users=10,
             spawn_rate=1,
-            duration=30,
+            duration=60,
         ),
         shape.Stage(
             users=100,
             spawn_rate=10,
-            duration=60,
+            duration=90,
         ),
         shape.Stage(
             users=1000,
             spawn_rate=50,
-            duration=60,
+            duration=90,
         ),
     ]
 
 
-class BaseSetupTeardown(mixin.AsyncMixin):
+class SetupTeardown(mixin.AsyncMixin):
     def __init__(self) -> None:
         super().__init__()
 
         self._settings = load_tests_settings
         self._logger = logger
 
-        self._uow = uow.UnitOfWork(
+        self._uow = uow.UserUnitOfWork(
+            database_name=load_tests_settings.db.name,
             master_factory=async_sessionmaker(
                 create_async_engine(
                     url=load_tests_settings.db.connection_url,
@@ -111,17 +113,17 @@ class BaseSetupTeardown(mixin.AsyncMixin):
         raise NotImplementedError()
 
 
-class BaseSearchUser(locust.HttpUser):
+class ReplicationUser(locust.HttpUser):
     """
-    Проверяем влияние индексов на
+    Проверяем влияние репликации на
     - поиск
+    - получение пользователя по id
     - вставку
 
-    При этом выставляем отношение read:write = 10:1
+    При этом выставляем отношение search:get:write = 10:5:1
     """
 
     host: str | None = f"http://{load_tests_settings.server.bind}"
-    abstract: bool = True
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -133,6 +135,9 @@ class BaseSearchUser(locust.HttpUser):
             seed=load_tests_settings.seed,
             locale=load_tests_settings.locale,
         )
+
+        self._token: typing.Optional[str] = None
+        self._user_id: typing.Optional[str] = None
 
     @locust.task(load_tests_settings.user_generator.search_ratio)
     def search(self) -> None:
@@ -164,3 +169,35 @@ class BaseSearchUser(locust.HttpUser):
             name="/register",
         )
         self._logger.debug(f"Registered: {response.json()}")
+        self.login(response.json()["user_id"], new_user.password)
+
+    def login(self, id_: str, password: str) -> None:
+        response = self.client.post(
+            "/login",
+            json={
+                "id": id_,
+                "password": password,
+            },
+            name="/login",
+        )
+        self._logger.debug(f"Got token: {response.json()}")
+        self._user_id = id_
+        self._token = response.json()["token"]
+
+    @locust.task(load_tests_settings.user_generator.get_ratio)
+    def get(self) -> None:
+        if self._user_id is None or self._token is None:
+            return None
+
+        self._logger.debug(f"Get user with id {self._user_id}")
+        response = self.client.get(
+            f"/user/get/{self._user_id}",
+            name="/get",
+            headers={"Authorization": f"Bearer {self._token}"},
+        )
+        self._logger.debug(f"Got: {response.json()}")
+
+
+@locust.events.test_start.add_listener
+def setup(environment, **kwargs):
+    SetupTeardown().setup()

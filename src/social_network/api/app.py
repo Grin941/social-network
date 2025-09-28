@@ -13,7 +13,9 @@ from starlette import requests, responses, status
 from social_network import settings
 from social_network.api import requests as api_requests
 from social_network.api.models import common
+from social_network.api.routes import friend as friend_routes
 from social_network.api.routes import login as login_routes
+from social_network.api.routes import post as post_routes
 from social_network.api.routes import user as user_routes
 from social_network.domain import exceptions as domain_exceptions
 from social_network.infrastructure.database import exceptions as db_exceptions
@@ -27,7 +29,9 @@ async def _validation_exception_handler(
     to_capture_exception = False
     if isinstance(exc, fastapi_exceptions.RequestValidationError):
         status_code = status.HTTP_400_BAD_REQUEST
-    elif isinstance(exc, db_exceptions.ObjectDoesNotExistError):
+    elif isinstance(
+        exc, (db_exceptions.ObjectDoesNotExistError, domain_exceptions.NotFoundError)
+    ):
         status_code = status.HTTP_404_NOT_FOUND
     elif isinstance(exc, domain_exceptions.AuthError):
         status_code = status.HTTP_401_UNAUTHORIZED
@@ -116,6 +120,8 @@ def build_application() -> fastapi.FastAPI:
     )
     app.include_router(login_routes.router)
     app.include_router(user_routes.router)
+    app.include_router(friend_routes.router)
+    app.include_router(post_routes.router)
     app.add_middleware(api_requests.RequestIdMiddleware)
 
     customize_openapi(app)

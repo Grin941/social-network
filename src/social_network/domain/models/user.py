@@ -1,9 +1,14 @@
 import datetime
+import uuid
 
 import pydantic
 
+from social_network.domain import mixins
 
-class NewUserDomain(pydantic.BaseModel):
+
+class NewUserDomain(
+    mixins.ModelWithCreatedAtUpdatedAtDeletedAtMixin, pydantic.BaseModel
+):
     first_name: str
     second_name: str
     birthdate: datetime.datetime
@@ -13,4 +18,4 @@ class NewUserDomain(pydantic.BaseModel):
 
 
 class UserDomain(NewUserDomain):
-    id: str
+    id: uuid.UUID

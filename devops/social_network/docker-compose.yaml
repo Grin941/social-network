@@ -1,26 +1,116 @@
 services:
-  postgres:
+  etcd0: &etcd-base
     extends:
       file: ../common-services.yml
-      service: postgres-common
-    ports:
-      - "${DB__PORT}:5432"
+      service: etcd-common
+    networks:
+      - pg-network
+    command:
+      - --name=etcd0
+      - --data-dir=/etcd-data
+      - --initial-advertise-peer-urls=http://etcd0:2380
+      - --listen-peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://etcd0:2379
+      - --listen-client-urls=http://0.0.0.0:2379
+      - --initial-cluster=etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+      - --initial-cluster-state=new
+      - --initial-cluster-token=${ETCD_CLUSTER_TOKEN}
+      - --enable-v2=true
+
+  etcd1:
+    <<: *etcd-base
+    command:
+      - --name=etcd1
+      - --data-dir=/etcd-data
+      - --initial-advertise-peer-urls=http://etcd1:2380
+      - --listen-peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://etcd1:2379
+      - --listen-client-urls=http://0.0.0.0:2379
+      - --initial-cluster=etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+      - --initial-cluster-state=new
+      - --initial-cluster-token=${ETCD_CLUSTER_TOKEN}
+      - --enable-v2=true
+
+  etcd2:
+    <<: *etcd-base
+    command:
+      - --name=etcd2
+      - --data-dir=/etcd-data
+      - --initial-advertise-peer-urls=http://etcd2:2380
+      - --listen-peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://etcd2:2379
+      - --listen-client-urls=http://0.0.0.0:2379
+      - --initial-cluster=etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+      - --initial-cluster-state=new
+      - --initial-cluster-token=${ETCD_CLUSTER_TOKEN}
+      - --enable-v2=true
+
+  patroni0: &patroni-base
+    extends:
+      file: ../common-services.yml
+      service: patroni-common
+    user: "postgres:postgres"
+    environment:
+      PATRONI_API_CONNECT_PORT: ${PATRONI_API_CONNECT_PORT}
+      PATRONI_REPLICATION_USERNAME: ${REPLICATION_NAME}
+      PATRONI_REPLICATION_PASSWORD: ${REPLICATION_PASS}
+      PATRONI_SUPERUSER_USERNAME: ${DB__USER}
+      PATRONI_SUPERUSER_PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+      DB__USER: ${DB__USER}
     volumes:
-      - pg-data:/var/lib/postgresql/data
+      - ./patroni/entrypoint.sh:/entrypoint.sh
+      - ./patroni/patroni.yml:/patroni.yml
+      - patroni0-data:/data/pg-01
+    networks:
+      - pg-network
+    depends_on:
+      - etcd0
+      - etcd1
+      - etcd2
+
+  patroni1:
+    <<: *patroni-base
+    volumes:
+      - ./patroni/entrypoint.sh:/entrypoint.sh
+      - ./patroni/patroni.yml:/patroni.yml
+      - patroni1-data:/data/pg-01:rw
+
+  patroni2:
+    <<: *patroni-base
+    volumes:
+      - ./patroni/entrypoint.sh:/entrypoint.sh
+      - ./patroni/patroni.yml:/patroni.yml
+      - patroni2-data:/data/pg-01:rw
+
+  haproxy:
+    extends:
+      file: ../common-services.yml
+      service: haproxy-common
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - patroni0
+      - patroni1
+      - patroni2
+    networks:
+      - pg-network
 
   migration:
     extends:
       file: ../common-services.yml
       service: migration-common
+    command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade head
     environment:
-      DB__HOST: postgres
-      DB__PORT: 5432
+      DB__HOST: haproxy
+      DB__PORT: ${DB__PORT}
       DB__USER: ${DB__USER}
       DB__PASSWORD: ${DB__PASSWORD}
       DB__NAME: ${DB__NAME}
     depends_on:
-      postgres:
-        condition: service_healthy
+      - haproxy
+    networks:
+      - pg-network
 
   social-network:
     extends:
@@ -32,8 +122,9 @@ services:
       SERVER__BIND_HOST: "0.0.0.0"
       SERVER__WORKERS: "1"
       DB__TYPENAME: "postgresql+asyncpg"
-      DB__HOST: postgres
-      DB__PORT: 5432
+      DB__HOST: haproxy
+      DB__PORT: ${DB__PORT}
+      DB__RO_PORT: ${DB__RO_PORT}
       DB__USER: ${DB__USER}
       DB__PASSWORD: ${DB__PASSWORD}
       DB__NAME: ${DB__NAME}
@@ -43,10 +134,17 @@ services:
       AUTH__TOKEN_TTL_SECONDS: "604800"
       SENTRY__DSN: ${SENTRY_DSN:-}
     depends_on:
-      postgres:
-        condition: service_healthy
       migration:
         condition: service_completed_successfully
+    networks:
+      - pg-network
 
 volumes:
   pg-data:
+  patroni0-data:
+  patroni1-data:
+  patroni2-data:
+
+networks:
+  pg-network:
+    driver: bridge

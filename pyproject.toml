@@ -61,7 +61,7 @@ dev = [
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-ra -q -v -s --cov=src --disable-pytest-warnings"
+addopts = "-ra -q -v -s --cov=src/social_network --disable-pytest-warnings"
 testpaths = [
     "tests",
 ]
@@ -69,12 +69,17 @@ markers = [
     "use_case"
 ]
 
-[tool.coverage.paths]
-source = ["src"]
-
 [tool.coverage.run]
 branch = true
-source = ["src"]
+omit = [
+    "src/social_network/settings.py",
+    "src/social_network/main.py",
+    "src/social_network/infrastructure/*",
+    "src/social_network/api/*.py",
+    "src/social_network/api/dependencies/*",
+    "src/social_network/api/schema_mappers/*",
+    "src/social_network/api/routes/*",
+]
 
 [tool.coverage.report]
 show_missing = true

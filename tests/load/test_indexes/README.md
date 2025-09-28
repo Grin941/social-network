@@ -73,7 +73,7 @@
 
 Запускаем приложение
 ```shell
-set -a && source .env && set +a && docker compose -f devops/tests_load_search_users_by_name_idx/docker-compose.yaml up --build
+set -a && source .env && set +a && docker compose -f devops/test_indexes/docker-compose.yaml up --build
 ```
 
 ### Тестирование без индексов
@@ -83,7 +83,7 @@ set -a && source .env && set +a && docker compose -f devops/tests_load_search_us
 #### Запуск теста
 
 ```shell
-set -a && source .env && set +a && locust -f tests/load/search_users_by_name_idx/locustfiles/no_index.py --timescale --headless
+set -a && source .env && set +a && locust -f tests/load/test_indexes/locustfiles/no_index.py --timescale --headless
 ```
 
 #### Информация о нагрузке
@@ -145,7 +145,7 @@ CREATE INDEX IF NOT EXISTS first_name_idx on users(first_name);
 
 Команда на запуск теста
 ```shell
-set -a && source .env && set +a && locust -f tests/load/search_users_by_name_idx/locustfiles/btree_separate.py --timescale --headless
+set -a && source .env && set +a && locust -f tests/load/test_indexes/locustfiles/btree_separate.py --timescale --headless
 ```
 
 #### Информация о нагрузке
@@ -227,7 +227,7 @@ CREATE INDEX IF NOT EXISTS name_gin_idx ON users USING GIN (second_name, first_n
 
 Команда на запуск теста
 ```shell
-set -a && source .env && set +a && locust -f tests/load/search_users_by_name_idx/locustfiles/btree_compound.py --timescale --headless
+set -a && source .env && set +a && locust -f tests/load/test_indexes/locustfiles/btree_compound.py --timescale --headless
 ```
 
 #### Информация о нагрузке
@@ -308,7 +308,7 @@ CREATE INDEX IF NOT EXISTS second_name_gin_idx ON users USING GIN (second_name g
 
 Команда на запуск теста
 ```shell
-set -a && source .env && set +a && locust -f tests/load/search_users_by_name_idx/locustfiles/gin_separate.py --timescale --headless
+set -a && source .env && set +a && locust -f tests/load/test_indexes/locustfiles/gin_separate.py --timescale --headless
 ```
 
 #### Информация о нагрузке
@@ -391,7 +391,7 @@ CREATE INDEX IF NOT EXISTS name_gin_idx ON users USING GIN (second_name, first_n
 
 Команда на запуск теста
 ```shell
-set -a && source .env && set +a && locust -f tests/load/search_users_by_name_idx/locustfiles/gin_compound.py --timescale --headless
+set -a && source .env && set +a && locust -f tests/load/test_indexes/locustfiles/gin_compound.py --timescale --headless
 ```
 
 #### Информация о нагрузке
@@ -475,7 +475,7 @@ CREATE INDEX IF NOT EXISTS second_name_gist_idx ON users USING GIST (second_name
 
 Команда на запуск теста
 ```shell
-set -a && source .env && set +a && locust -f tests/load/search_users_by_name_idx/locustfiles/gist_separate.py --timescale --headless
+set -a && source .env && set +a && locust -f tests/load/test_indexes/locustfiles/gist_separate.py --timescale --headless
 ```
 
 #### Информация о нагрузке

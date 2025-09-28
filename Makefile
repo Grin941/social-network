@@ -30,6 +30,7 @@ lint: uv   ## Run linters
 .PHONY: test
 test: uv  ## Run tests
 	@echo "Testing code"
+	@uv run pytest --dead-fixtures
 	@uv run pytest
 
 .PHONY: make-migration
@@ -68,10 +69,3 @@ clear:  ## Clear docker artifacts
 	docker compose \
 	-f devops/social_network/docker-compose.yaml \
 	down --volumes
-
-
-.PHONY: glitchtip
-glitchtip:  ## Run sentry locally
-	@docker compose \
-	-f devops/glitchtip/docker-compose.yaml \
-	up --build
