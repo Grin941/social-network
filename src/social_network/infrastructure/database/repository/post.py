@@ -40,12 +40,26 @@ class PostRepository(
 
         return await self.find_one(id_)
 
-    async def batch_create(self, items: typing.List[models.NewPostDomain]) -> None:
+    async def batch_create(
+        self, items: list[models.NewPostDomain]
+    ) -> list[models.PostDomain]:
         session = self._get_db_session()
-        await session.execute(
-            self._create_statement,
-            [item.model_dump() | {"id": str(uuid.uuid4())} for item in items],
+        insert_posts = [item.model_dump() | {"id": str(uuid.uuid4())} for item in items]
+        await session.execute(self._create_statement, insert_posts)
+
+        posts = (
+            (
+                await session.execute(
+                    self.prepare_select(
+                        model_class=orm.PostORM,
+                        where_clause=f"id IN ({', '.join((f"'{item['''id''']}'" for item in insert_posts))})",
+                    )
+                )
+            )
+            .mappings()
+            .all()
         )
+        return [models.PostDomain(**post) for post in posts]
 
     async def find_one(self, id_: str) -> models.PostDomain:
         posts = await self.find_all(filters={"id": id_})
@@ -110,8 +124,8 @@ class PostRepository(
                         "ON ((p.author_id = f.user_id AND f.friend_id = :current_user_id) "
                         "OR (p.author_id = f.friend_id AND f.user_id = :current_user_id)) "
                         "WHERE p.author_id != :current_user_id "
-                        "AND p.deleted_at IS NOT NULL "
-                        "AND f.deleted_at IS NOT NULL "
+                        "AND p.deleted_at IS NULL "
+                        "AND f.deleted_at IS NULL "
                         "OFFSET :offset "
                         "LIMIT :limit"
                     ),

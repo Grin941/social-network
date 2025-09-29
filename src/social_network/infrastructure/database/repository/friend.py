@@ -18,15 +18,21 @@ class FriendRepository(
     ],
     mixins.SelectPreparationMixin[orm.FriendORM],
 ):
+    @property
+    def _create_statement(
+        self,
+    ) -> sqlalchemy.TextClause:
+        return sqlalchemy.text(
+            "INSERT INTO friends (id, user_id, friend_id, created_at, updated_at, deleted_at) "
+            "VALUES (:id, :user_id, :friend_id, :created_at, :updated_at, :deleted_at)"
+        )
+
     async def create(self, item: models.NewFriendDomain) -> models.FriendDomain:
         session = self._get_db_session()
         id_ = str(uuid.uuid4())
         try:
             await session.execute(
-                sqlalchemy.text(
-                    "INSERT INTO friends (id, user_id, friend_id, created_at, updated_at, deleted_at) "
-                    "VALUES (:id, :user_id, :friend_id, :created_at, :updated_at, :deleted_at)"
-                ),
+                self._create_statement,
                 item.model_dump() | {"id": id_},
             )
         except sqlalchemy.exc.IntegrityError as err:
@@ -36,8 +42,28 @@ class FriendRepository(
 
         return await self.find_one(id_)
 
-    async def batch_create(self, items: typing.List[models.NewFriendDomain]) -> None:
-        raise NotImplementedError()
+    async def batch_create(
+        self, items: list[models.NewFriendDomain]
+    ) -> list[models.FriendDomain]:
+        session = self._get_db_session()
+        insert_friends = [
+            item.model_dump() | {"id": str(uuid.uuid4())} for item in items
+        ]
+        await session.execute(self._create_statement, insert_friends)
+
+        friends = (
+            (
+                await session.execute(
+                    self.prepare_select(
+                        model_class=orm.FriendORM,
+                        where_clause=f"id IN ({', '.join((f"'{item['''id''']}'" for item in insert_friends))})",
+                    )
+                )
+            )
+            .mappings()
+            .all()
+        )
+        return [models.FriendDomain(**friend) for friend in friends]
 
     async def find_one(self, id_: str) -> models.FriendDomain:
         friends = await self.find_all(filters={"id": id_})

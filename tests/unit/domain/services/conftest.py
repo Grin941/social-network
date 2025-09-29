@@ -1,12 +1,12 @@
 import datetime
 import typing
 import uuid
+from unittest import mock
 
 import pytest
 import pytest_mock
 from cryptography import fernet
 from jose import jwt
-from unittest import mock
 
 from social_network.domain import models, services
 from social_network.infrastructure.database import exceptions as database_exceptions

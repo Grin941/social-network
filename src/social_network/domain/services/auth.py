@@ -11,6 +11,14 @@ from social_network.infrastructure.database import exceptions as database_except
 from social_network.infrastructure.database import uow
 
 
+def encrypt_password(password: str, secret: str) -> str:
+    return fernet.Fernet(secret).encrypt(password.encode()).decode()
+
+
+def decrypt_password(password: str, secret: str) -> str:
+    return fernet.Fernet(secret).decrypt(password).decode()
+
+
 class AuthService(abstract.AbstractService):
     def __init__(
         self,
@@ -30,13 +38,13 @@ class AuthService(abstract.AbstractService):
 
     def encrypt_password(self, password: str) -> str:
         try:
-            return fernet.Fernet(self._secret).encrypt(password.encode()).decode()
+            return encrypt_password(password=password, secret=self._secret)
         except ValueError as exc:
             raise domain_exceptions.FernetKeyError() from exc
 
     def decrypt_password(self, password: str) -> str:
         try:
-            return fernet.Fernet(self._secret).decrypt(password).decode()
+            return decrypt_password(password=password, secret=self._secret)
         except ValueError as exc:
             raise domain_exceptions.FernetKeyError() from exc
         except (fernet.InvalidToken, fernet.InvalidSignature) as exc:

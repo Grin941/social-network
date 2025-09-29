@@ -40,7 +40,7 @@ class PostNotFoundError(NotFoundError):
 
 
 class FriendNotFoundError(NotFoundError):
-    code = 4
+    code = 3
 
     def __init__(self, user_id: str, friend_id: str) -> None:
         super().__init__(
@@ -89,3 +89,6 @@ class FernetKeyError(AuthError):
 
 class FernetInvalidTokenError(AuthError):
     code = 6
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message=message)

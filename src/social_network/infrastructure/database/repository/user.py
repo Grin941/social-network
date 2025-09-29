@@ -33,12 +33,26 @@ class UserRepository(
 
         return await self.find_one(id_)
 
-    async def batch_create(self, items: typing.List[models.NewUserDomain]) -> None:
+    async def batch_create(
+        self, items: list[models.NewUserDomain]
+    ) -> list[models.UserDomain]:
         session = self._get_db_session()
-        await session.execute(
-            self._create_statement,
-            [item.model_dump() | {"id": str(uuid.uuid4())} for item in items],
+        insert_items = [item.model_dump() | {"id": str(uuid.uuid4())} for item in items]
+        await session.execute(self._create_statement, insert_items)
+
+        users = (
+            (
+                await session.execute(
+                    self.prepare_select(
+                        model_class=orm.UserORM,
+                        where_clause=f"id IN ({', '.join((f"'{item['''id''']}'" for item in insert_items))})",
+                    )
+                )
+            )
+            .mappings()
+            .all()
         )
+        return [models.UserDomain(**user) for user in users]
 
     async def search(
         self, first_name_prefix: str, second_name_prefix: str

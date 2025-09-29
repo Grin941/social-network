@@ -112,6 +112,27 @@ services:
     networks:
       - pg-network
 
+  bootstrap:
+    extends:
+      file: ../common-services.yml
+      service: bootstrap-common
+    environment:
+      DB__HOST: haproxy
+      DB__PORT: ${DB__PORT}
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+      MY_PASSWORD: ${MY_PASSWORD}
+      MY_UUID: ${MY_UUID}
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - pg-network
+
   social-network:
     extends:
       file: ../common-services.yml

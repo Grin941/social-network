@@ -43,6 +43,13 @@ services:
     command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade head
     restart: on-failure
 
+  bootstrap-common:
+    build:
+      context: ../.
+      dockerfile: devops/social_network/Dockerfile
+    command: python -m bootstrap.main
+    restart: on-failure
+
   social-network-common:
     build:
       context: ../.
