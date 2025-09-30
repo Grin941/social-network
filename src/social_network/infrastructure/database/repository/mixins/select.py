@@ -23,14 +23,14 @@ class SelectPreparationMixin(Generic[ModelInSelectType]):
         query = f"SELECT {select_fields or '*'} FROM {model_class.__tablename__}"
         if where_clause:
             if exclude_deleted:
-                where_clause += " AND deleted_at IS NOT NULL"
+                where_clause += " AND deleted_at IS NULL"
             query += f" WHERE {where_clause}"
         elif filters:
             query += f" WHERE {' AND '.join([f"""{k} = '{str(v)}'""" for k, v in filters.items()])}"
             if exclude_deleted:
-                query += " AND deleted_at IS NOT NULL"
+                query += " AND deleted_at IS NULL"
         elif exclude_deleted:
-            query += " WHERE deleted_at IS NOT NULL"
+            query += " WHERE deleted_at IS NULL"
 
         if order_by:
             query += f" ORDER BY {order_by}"

@@ -26,10 +26,12 @@ async def set_friend(
     user_id: typing.Annotated[uuid.UUID, fastapi.Path(title="Идентификатор друга")],
     request_user: dependencies.RequestUser,
     friend_service: dependencies.FriendService,
+    feed_service: dependencies.FeedService,
 ) -> dto.FriendDTO:
     friendship = await friend_service.make_friendship(
         user=request_user, friend_id=user_id
     )
+    await feed_service.add_friend(user_id=request_user.id, friend_id=user_id)
     return schema_mappers.FriendMapper.map_domain_to_dto(friendship)
 
 
@@ -48,6 +50,8 @@ async def delete_friend(
     user_id: typing.Annotated[uuid.UUID, fastapi.Path(title="Идентификатор друга")],
     request_user: dependencies.RequestUser,
     friend_service: dependencies.FriendService,
+    feed_service: dependencies.FeedService,
 ) -> fastapi.Response:
     await friend_service.delete_friendship(user=request_user, friend_id=user_id)
+    await feed_service.delete_friend(user_id=request_user.id, friend_id=user_id)
     return fastapi.Response(status_code=status.HTTP_200_OK)

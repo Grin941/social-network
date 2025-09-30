@@ -3,6 +3,7 @@ import uuid
 
 import fastapi
 from fastapi import status
+from redis import asyncio as aioredis
 
 from social_network.api import dependencies, responses, schema_mappers
 from social_network.api import models as dto
@@ -26,12 +27,14 @@ async def make_post(
     new_post: dto.NewPostDTO,
     request_user: dependencies.RequestUser,
     post_service: dependencies.PostService,
+    feed_service: dependencies.FeedService,
 ) -> dto.PostDTO:
     post = await post_service.make_post(
         schema_mappers.PostMapper.map_new_dto_to_new_domain(
             new_post_dto=new_post, author_id=request_user.id
         )
     )
+    await feed_service.add_post(user_id=request_user.id, post=post)
     return schema_mappers.PostMapper.map_domain_to_dto(post)
 
 
@@ -51,6 +54,7 @@ async def update_post(
     updating_post: dto.UpdatingPostDTO,
     request_user: dependencies.RequestUser,
     post_service: dependencies.PostService,
+    feed_service: dependencies.FeedService,
 ) -> dto.PostDTO:
     post = await post_service.update_post(
         post=schema_mappers.PostMapper.map_updating_dto_to_updating_domain(
@@ -58,6 +62,7 @@ async def update_post(
         ),
         user_id=request_user.id,
     )
+    await feed_service.update_post(user_id=request_user.id, post=post)
     return schema_mappers.PostMapper.map_domain_to_dto(post)
 
 
@@ -76,8 +81,10 @@ async def delete_post(
     post_id: typing.Annotated[uuid.UUID, fastapi.Path(title="Идентификатор поста")],
     request_user: dependencies.RequestUser,
     post_service: dependencies.PostService,
+    feed_service: dependencies.FeedService,
 ) -> fastapi.Response:
     await post_service.delete_post(post_id=post_id, user_id=request_user.id)
+    await feed_service.delete_post(user_id=request_user.id, post_id=post_id)
     return fastapi.Response(status_code=status.HTTP_200_OK)
 
 
@@ -113,9 +120,17 @@ async def get_post(
 )
 async def feed_posts(
     request_user: dependencies.RequestUser,
+    feed_service: dependencies.FeedService,
     post_service: dependencies.PostService,
     offset: typing.Annotated[int, fastapi.Query(examples=[100])] = 100,
     limit: typing.Annotated[int, fastapi.Query(examples=[10])] = 10,
 ) -> list[dto.PostDTO]:
-    posts = await post_service.feed(user_id=request_user.id, offset=offset, limit=limit)
+    try:
+        posts = await feed_service.feed(
+            user_id=request_user.id, offset=offset, limit=limit
+        )
+    except aioredis.RedisError:
+        posts = await post_service.feed(
+            user_id=request_user.id, offset=offset, limit=limit
+        )
     return [schema_mappers.PostMapper.map_domain_to_dto(post) for post in posts]

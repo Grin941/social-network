@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 import datetime
 import logging
@@ -7,6 +8,7 @@ import fastapi
 import sentry_sdk
 from fastapi import encoders
 from fastapi import exceptions as fastapi_exceptions
+from redis import asyncio as aioredis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from starlette import requests, responses, status
 
@@ -63,6 +65,7 @@ async def _validation_exception_handler(
 
 class ApplicationState(typing.TypedDict):
     settings: settings.SocialNetworkSettings
+    redis: aioredis.Redis
     master_factory: async_sessionmaker[AsyncSession]
     slave_factory: typing.Optional[async_sessionmaker[AsyncSession]]
 
@@ -74,6 +77,7 @@ async def lifespan(
     social_network_settings = settings.SocialNetworkSettings()
     app.debug = social_network_settings.level == "DEBUG"
 
+    redis = aioredis.from_url(social_network_settings.redis.connection_url)
     master = create_async_engine(
         url=social_network_settings.db.connection_url,
         echo=social_network_settings.level == "DEBUG",
@@ -89,15 +93,18 @@ async def lifespan(
 
     yield ApplicationState(
         settings=social_network_settings,
+        redis=redis,
         master_factory=async_sessionmaker(master, expire_on_commit=False),
         slave_factory=None
         if social_network_settings.db.ro_connection_url is None
         else async_sessionmaker(slave, expire_on_commit=False),
     )
 
-    await master.dispose()
+    coros = [redis.close(), master.dispose()]
     if slave:
-        await slave.dispose()
+        coros.append(slave.dispose())
+
+    await asyncio.gather(*coros)
 
 
 def customize_openapi(app: fastapi.FastAPI) -> None:

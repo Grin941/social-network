@@ -121,11 +121,12 @@ class PostRepository(
                     sqlalchemy.text(
                         "SELECT p.* "
                         "FROM posts p JOIN friends f "
-                        "ON ((p.author_id = f.user_id AND f.friend_id = :current_user_id) "
-                        "OR (p.author_id = f.friend_id AND f.user_id = :current_user_id)) "
+                        "ON p.author_id = f.user_id "
                         "WHERE p.author_id != :current_user_id "
                         "AND p.deleted_at IS NULL "
                         "AND f.deleted_at IS NULL "
+                        "AND f.friend_id = :current_user_id "
+                        "ORDER BY p.created_at DESC "
                         "OFFSET :offset "
                         "LIMIT :limit"
                     ),
