@@ -46,9 +46,18 @@ make fix
 make lint
 ```
 
-### Тестирование
+### Модульное тестирование
 
 - запуск `pytest` тестов
 ```shell
 make test
 ```
+
+### Нагрузочное тестирование
+
+В рамках курса нужно проводить нагрузочное тестирование разных Highload-решений и описывать результаты тестов в отчете
+
+Ссылки на отчеты
+1. [Производительность индексов](https://github.com/Grin941/social-network/tree/main/tests/load/test_indexes)
+2. [Репликация](https://github.com/Grin941/social-network/tree/main/tests/load/test_replication)
+3. [Кэширование](https://github.com/Grin941/social-network/tree/main/tests/load/test_cache)
