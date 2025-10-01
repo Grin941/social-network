@@ -43,6 +43,13 @@ services:
     command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade head
     restart: on-failure
 
+  bootstrap-common:
+    build:
+      context: ../.
+      dockerfile: devops/social_network/Dockerfile
+    command: python -m bootstrap.main
+    restart: on-failure
+
   social-network-common:
     build:
       context: ../.
@@ -77,6 +84,15 @@ services:
   postgresql-exporter-common:
     image: prometheuscommunity/postgres-exporter:v0.18.0
     command: [ "--collector.postmaster", "--collector.stat_wal_receiver", "--collector.database_wraparound", "--collector.long_running_transactions", "--collector.process_idle", "--collector.stat_activity_autovacuum", "--collector.stat_statements", "--collector.statio_user_indexes", "--collector.xlog_location" ]
+    restart: unless-stopped
+
+  redis-exporter-common:
+    image: oliver006/redis_exporter:v1.77.0
+    ports:
+      - "9121:9121"
+    command: --redis.addr redis:${REDIS__PORT}
+    environment:
+      REDIS__PORT: ${REDIS__PORT}
     restart: unless-stopped
 
   etcd-common:

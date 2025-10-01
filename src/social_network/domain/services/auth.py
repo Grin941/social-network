@@ -11,10 +11,32 @@ from social_network.infrastructure.database import exceptions as database_except
 from social_network.infrastructure.database import uow
 
 
+def encrypt_password(password: str, secret: str) -> str:
+    return fernet.Fernet(secret).encrypt(password.encode()).decode()
+
+
+def decrypt_password(password: str, secret: str) -> str:
+    return fernet.Fernet(secret).decrypt(password).decode()
+
+
+def create_access_token(
+    id_: str, token_ttl_seconds: int, secret: str, algorithm: str
+) -> str:
+    return jwt.encode(
+        {
+            "sub": id_,
+            "exp": datetime.datetime.now(datetime.timezone.utc)
+            + datetime.timedelta(seconds=token_ttl_seconds),
+        },
+        key=secret,
+        algorithm=algorithm,
+    )
+
+
 class AuthService(abstract.AbstractService):
     def __init__(
         self,
-        unit_of_work: uow.UnitOfWork,
+        unit_of_work: uow.UserUnitOfWork,
         secret: str,
         algorithm: str,
         token_ttl_seconds: int,
@@ -24,29 +46,30 @@ class AuthService(abstract.AbstractService):
         self._algorithm = algorithm
         self._token_ttl_seconds = token_ttl_seconds
 
+    @property
+    def uow(self) -> uow.UserUnitOfWork:
+        return typing.cast(uow.UserUnitOfWork, self._uow)
+
     def encrypt_password(self, password: str) -> str:
         try:
-            return fernet.Fernet(self._secret).encrypt(password.encode()).decode()
+            return encrypt_password(password=password, secret=self._secret)
         except ValueError as exc:
             raise domain_exceptions.FernetKeyError() from exc
 
     def decrypt_password(self, password: str) -> str:
         try:
-            return fernet.Fernet(self._secret).decrypt(password).decode()
+            return decrypt_password(password=password, secret=self._secret)
         except ValueError as exc:
             raise domain_exceptions.FernetKeyError() from exc
         except (fernet.InvalidToken, fernet.InvalidSignature) as exc:
             raise domain_exceptions.FernetInvalidTokenError(str(exc)) from exc
 
     def create_access_token(self, id_: str) -> str:
-        return jwt.encode(
-            {
-                "sub": id_,
-                "exp": datetime.datetime.now(datetime.timezone.utc)
-                + datetime.timedelta(seconds=self._token_ttl_seconds),
-            },
-            key=self._secret,
+        return create_access_token(
+            id_=id_,
+            token_ttl_seconds=self._token_ttl_seconds,
             algorithm=self._algorithm,
+            secret=self._secret,
         )
 
     def decode_access_token(self, token: str) -> dict[str, typing.Any]:
@@ -58,9 +81,10 @@ class AuthService(abstract.AbstractService):
             raise domain_exceptions.InvalidTokenError(token)
 
     async def _duplicate_exists(self, item: models.NewUserDomain) -> bool:
-        async for _ in self._uow.transaction(read_only=True):
-            users = await self._uow.users.find_all(
-                item.model_dump(exclude={"password"})
+        async for _ in self.uow.transaction(read_only=True):
+            users = await self.uow.users.find_all(
+                filters=item.model_dump(exclude={"password"}),
+                exclude_deleted=True,
             )
         for user in users:
             if self.decrypt_password(password=user.password) == item.password:
@@ -72,8 +96,8 @@ class AuthService(abstract.AbstractService):
         if await self._duplicate_exists(new_user):
             raise domain_exceptions.UserAlreadyRegisteredError()
 
-        async for _ in self._uow.transaction():
-            user = await self._uow.users.create(
+        async for _ in self.uow.transaction():
+            user = await self.uow.users.create(
                 models.NewUserDomain(
                     **new_user.model_dump(exclude={"password"}),
                     password=self.encrypt_password(password=new_user.password),
@@ -93,18 +117,18 @@ class AuthService(abstract.AbstractService):
         if (user_id := payload.get("sub")) is None:
             raise domain_exceptions.InvalidTokenError(token)
 
-        async for _ in self._uow.transaction(read_only=True):
+        async for _ in self.uow.transaction(read_only=True):
             try:
-                user = await self._uow.users.find_one(user_id)
+                user = await self.uow.users.find_one(user_id)
             except database_exceptions.ObjectDoesNotExistError as exc:
                 raise domain_exceptions.UserNotFoundError(user_id) from exc
 
         return user
 
     async def login(self, id_: str, password: str) -> str:
-        async for _ in self._uow.transaction(read_only=True):
+        async for _ in self.uow.transaction(read_only=True):
             try:
-                user = await self._uow.users.find_one(id_)
+                user = await self.uow.users.find_one(id_)
             except database_exceptions.ObjectDoesNotExistError as err:
                 raise domain_exceptions.UserNotFoundError(id_) from err
 

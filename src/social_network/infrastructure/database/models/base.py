@@ -1,3 +1,8 @@
-from sqlalchemy.orm.decl_api import declarative_base
+from sqlalchemy import orm
+from sqlalchemy.ext.asyncio import AsyncAttrs
 
-BaseORM = declarative_base()
+from social_network.infrastructure.database.models import types
+
+
+class BaseORM(AsyncAttrs, orm.DeclarativeBase):
+    type_annotation_map = types.type_annotation_mapper

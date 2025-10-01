@@ -20,7 +20,7 @@ class RegistrationMapper:
 
     @staticmethod
     def map_domain_to_user_dto(user_domain: domain.UserDomain) -> dto.NewUserDTO:
-        return dto.NewUserDTO(user_id=user_domain.id)
+        return dto.NewUserDTO(user_id=str(user_domain.id))
 
 
 class UserMapper:

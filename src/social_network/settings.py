@@ -53,6 +53,29 @@ class DbSettings(pydantic.BaseModel):
         logger.info(f"db.pool_size={self.pool_size}")
 
 
+class RedisSettings(pydantic.BaseModel):
+    protocol: str = "redis"
+    host: str = "127.0.0.1"
+    port: int = 6379
+    db: int = 0
+    feed_capacity: int = 1000
+    ttl: int = 600
+    lock_timeout: float = 5.0
+
+    @property
+    def connection_url(self) -> str:
+        return f"{self.protocol}://{self.host}:{self.port}/{self.db}"
+
+    def print_to_log(self) -> None:
+        logger.info(f"redis.protocol={self.protocol}")
+        logger.info(f"redis.host={self.host}")
+        logger.debug(f"redis.port={self.port}")
+        logger.info(f"redis.db={self.db}")
+        logger.info(f"redis.feed_capacity={self.feed_capacity}")
+        logger.info(f"redis.ttl={self.ttl}")
+        logger.info(f"redis.lock_timeout={self.lock_timeout}")
+
+
 class AuthSettings(pydantic.BaseModel):
     secret: str = ""
     algorithm: str = "HS256"
@@ -87,6 +110,7 @@ class SocialNetworkSettings(pydantic_settings.BaseSettings):
 
     server: ServerSettings = pydantic.Field(default_factory=ServerSettings)
     db: DbSettings = pydantic.Field(default_factory=DbSettings)
+    redis: RedisSettings = pydantic.Field(default_factory=RedisSettings)
     auth: AuthSettings = pydantic.Field(default_factory=AuthSettings)
     sentry: SentrySettings = pydantic.Field(default_factory=SentrySettings)
 
@@ -121,6 +145,7 @@ class SocialNetworkSettings(pydantic_settings.BaseSettings):
     def print_to_log(self) -> None:
         self.server.print_to_log()
         self.db.print_to_log()
+        self.redis.print_to_log()
         self.auth.print_to_log()
         self.sentry.print_to_log()
         logger.info(f"settings.level={self.level}")
