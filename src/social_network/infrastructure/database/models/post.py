@@ -16,5 +16,6 @@ class PostORM(mixins.CreatedAtUpdatedAtDeletedAtMixin, base.BaseORM):
             user.UserORM.id, onupdate="RESTRICT", ondelete="RESTRICT"
         ),
         nullable=False,
+        index=True,
     )
     text: sqlalchemy.orm.Mapped[str] = sqlalchemy.orm.MappedColumn(sqlalchemy.TEXT())

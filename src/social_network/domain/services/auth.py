@@ -19,6 +19,20 @@ def decrypt_password(password: str, secret: str) -> str:
     return fernet.Fernet(secret).decrypt(password).decode()
 
 
+def create_access_token(
+    id_: str, token_ttl_seconds: int, secret: str, algorithm: str
+) -> str:
+    return jwt.encode(
+        {
+            "sub": id_,
+            "exp": datetime.datetime.now(datetime.timezone.utc)
+            + datetime.timedelta(seconds=token_ttl_seconds),
+        },
+        key=secret,
+        algorithm=algorithm,
+    )
+
+
 class AuthService(abstract.AbstractService):
     def __init__(
         self,
@@ -51,14 +65,11 @@ class AuthService(abstract.AbstractService):
             raise domain_exceptions.FernetInvalidTokenError(str(exc)) from exc
 
     def create_access_token(self, id_: str) -> str:
-        return jwt.encode(
-            {
-                "sub": id_,
-                "exp": datetime.datetime.now(datetime.timezone.utc)
-                + datetime.timedelta(seconds=self._token_ttl_seconds),
-            },
-            key=self._secret,
+        return create_access_token(
+            id_=id_,
+            token_ttl_seconds=self._token_ttl_seconds,
             algorithm=self._algorithm,
+            secret=self._secret,
         )
 
     def decode_access_token(self, token: str) -> dict[str, typing.Any]:

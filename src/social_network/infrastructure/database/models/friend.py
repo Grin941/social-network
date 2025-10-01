@@ -16,10 +16,12 @@ class FriendORM(mixins.CreatedAtUpdatedAtDeletedAtMixin, base.BaseORM):
             user.UserORM.id, onupdate="RESTRICT", ondelete="RESTRICT"
         ),
         nullable=False,
+        index=True,
     )
     friend_id: sqlalchemy.orm.Mapped[uuid.UUID] = sqlalchemy.orm.MappedColumn(
         sqlalchemy.ForeignKey(
             user.UserORM.id, onupdate="RESTRICT", ondelete="RESTRICT"
         ),
         nullable=False,
+        index=True,
     )

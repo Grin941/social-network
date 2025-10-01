@@ -1,4 +1,13 @@
 services:
+  timescaledb:
+    extends:
+      file: ../common-services.yml
+      service: timescaledb-common
+    volumes:
+      - timescaledb-data-cache:/var/lib/postgresql/data
+    networks:
+      - cache-network
+
   postgres:
     image: postgres:17.5
     environment:
@@ -14,9 +23,24 @@ services:
       retries: 5
     restart: unless-stopped
     volumes:
-      - pg-data:/var/lib/postgresql/data
+      - pg-data-cache:/var/lib/postgresql/data
     networks:
-      - sn-network
+      - cache-network
+
+
+  postgresql-exporter:
+    extends:
+      file: ../common-services.yml
+      service: postgresql-exporter-common
+    ports:
+      - "9187:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@postgres:5432/${DB__NAME}?sslmode=disable"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cache-network
 
   migration:
     build:
@@ -33,7 +57,7 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - sn-network
+      - cache-network
 
   redis:
     image: redis:8.2.1
@@ -45,22 +69,18 @@ services:
       timeout: 3s
       retries: 5
     volumes:
-      - redis_data:/data
+      - redis-data-cache:/data
     networks:
-      - sn-network
+      - cache-network
 
-  redis-desktop-manager:
-    image: redis/redisinsight:2.70
-    restart: always
-    ports:
-      - "5540:5540"
-    volumes:
-      - redis_insight_data:/data
+  redis-exporter:
+    extends:
+      file: ../common-services.yml
+      service: redis-exporter-common
     depends_on:
-      redis:
-        condition: service_healthy
+      - redis
     networks:
-      - sn-network
+      - cache-network
 
   bootstrap:
     extends:
@@ -81,7 +101,7 @@ services:
       migration:
         condition: service_completed_successfully
     networks:
-      - sn-network
+      - cache-network
 
   social-network:
     build:
@@ -115,14 +135,39 @@ services:
         condition: service_completed_successfully
       redis:
         condition: service_healthy
+      bootstrap:
+        condition: service_completed_successfully
     networks:
-      - sn-network
+      - cache-network
+
+  prometheus:
+    extends:
+      file: ../common-services.yml
+      service: prometheus-common
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-cache:/prometheus
+    networks:
+      - cache-network
+
+  grafana:
+    extends:
+      file: ../common-services.yml
+      service: grafana-common
+    volumes:
+      - grafana-cache:/var/lib/grafana
+      - ../monitoring/grafana-provisioning/:/etc/grafana/provisioning
+    networks:
+      - cache-network
 
 volumes:
-  pg-data:
-  redis_data:
-  redis_insight_data:
+  pg-data-cache:
+  redis-data-cache:
+  redis-insight-data-cache:
+  prometheus-cache:
+  grafana-cache:
+  timescaledb-data-cache:
 
 networks:
-  sn-network:
+  cache-network:
     driver: bridge

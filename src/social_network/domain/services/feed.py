@@ -64,19 +64,12 @@ class FeedService(abstract.AbstractService):
     def _parse(post: models.PostDomain) -> tuple[str, float]:
         return post.model_dump_json(), post.updated_at.timestamp()
 
+    async def _count(self, user_id) -> int:
+        return await self._redis.zcard(self.feed_key(user_id))
+
     async def _add(self, post: models.PostDomain, user_id: uuid.UUID) -> None:
         data, score = self._parse(post)
         await self._redis.zadd(name=self.feed_key(user_id), mapping={data: score})
-
-    async def _update(self, post: models.PostDomain, user_id: uuid.UUID) -> None:
-        data, score = self._parse(post)
-        await self._redis.zadd(
-            name=self.feed_key(user_id), mapping={data: score}, xx=True
-        )
-
-    async def _delete(self, post: models.PostDomain, user_id: uuid.UUID) -> None:
-        data, _ = self._parse(post)
-        await self._redis.zrem(self.feed_key(user_id), data)
 
     async def _expire(self, user_id: uuid.UUID, ttl: int) -> None:
         await self._redis.set(
@@ -95,9 +88,12 @@ class FeedService(abstract.AbstractService):
             expiration_ts
         )
 
+    async def _invalidate(self, user_id: uuid.UUID) -> None:
+        await self._redis.delete(self.feed_key(user_id))
+
     async def _warm_up(self, user_id: uuid.UUID) -> None:
         logger.info(f"Warming up {self.feed_key(user_id)}")
-        posts_count = await self._redis.zcard(self.feed_key(user_id))
+        posts_count = await self._count(user_id)
         if posts_count:
             await self._redis.delete(self.feed_key(user_id))
 
@@ -123,9 +119,18 @@ class FeedService(abstract.AbstractService):
                 name=self.lock_key(friend.friend_id),
                 blocking_timeout=self._lock_timeout,
             ):
-                posts_count = await self._redis.zcard(self.feed_key(friend.friend_id))
+                posts_count = await self._count(friend.friend_id)
+                if not posts_count:
+                    logger.info(
+                        f"Cache {self.feed_key(friend.friend_id)} is not warmed up yet. Skip."
+                    )
+                    continue
+
                 is_expired = await self._is_expired(user_id=friend.friend_id)
-                if not posts_count or is_expired:
+                if is_expired:
+                    logger.info(
+                        f"Cache {self.feed_key(friend.friend_id)} is expired. Warm up"
+                    )
                     await self._warm_up(user_id=friend.friend_id)
                     continue
 
@@ -135,6 +140,7 @@ class FeedService(abstract.AbstractService):
                     )
 
                 await self._add(post=post, user_id=friend.friend_id)
+                await self._expire(user_id=friend.friend_id, ttl=self._ttl)
                 logger.info(
                     f"Added post {post.id} to {self.feed_key(friend.friend_id)}"
                 )
@@ -154,11 +160,9 @@ class FeedService(abstract.AbstractService):
                 name=self.lock_key(friend.friend_id),
                 blocking_timeout=self._lock_timeout,
             ):
-                await self._update(post=post, user_id=friend.friend_id)
-                await self._delete(post=post, user_id=friend.friend_id)
-                await self._expire(user_id=friend.friend_id, ttl=self._ttl)
+                await self._invalidate(friend.friend_id)
                 logger.info(
-                    f"Deleted post {post.id} from {self.feed_key(friend.friend_id)}"
+                    f"Deleted post {post.id} from {self.feed_key(friend.friend_id)} – invalidated cache"
                 )
 
     @handle_redis_error()
@@ -173,10 +177,9 @@ class FeedService(abstract.AbstractService):
                 name=self.lock_key(friend.friend_id),
                 blocking_timeout=self._lock_timeout,
             ):
-                await self._update(post=post, user_id=friend.friend_id)
-                await self._expire(user_id=friend.friend_id, ttl=self._ttl)
+                await self._invalidate(friend.friend_id)
                 logger.info(
-                    f"Updated post {post.id} from {self.feed_key(friend.friend_id)}"
+                    f"Updated post {post.id} from {self.feed_key(friend.friend_id)} – invalidated cache"
                 )
 
     @handle_redis_error()
@@ -186,8 +189,8 @@ class FeedService(abstract.AbstractService):
             async with self._redis.lock(
                 name=self.lock_key(id_), blocking_timeout=self._lock_timeout
             ):
-                await self._redis.delete(self.feed_key(id_))
-                logger.info(f"Added friend {friend_id} to {id_}")
+                await self._invalidate(id_)
+                logger.info(f"Added friend {friend_id} to {id_} – invalidated cache")
 
     @handle_redis_error()
     async def delete_friend(self, user_id: uuid.UUID, friend_id: uuid.UUID) -> None:
@@ -199,8 +202,10 @@ class FeedService(abstract.AbstractService):
             async with self._redis.lock(
                 name=self.lock_key(id_), blocking_timeout=self._lock_timeout
             ):
-                await self._redis.delete(self.feed_key(id_))
-                logger.info(f"Added friendship between {friend_id} and {id_}")
+                await self._invalidate(id_)
+                logger.info(
+                    f"Removed friendship between {friend_id} and {id_} – invalidated cache"
+                )
 
     async def feed(
         self, user_id: uuid.UUID, offset: int, limit: int
@@ -211,6 +216,7 @@ class FeedService(abstract.AbstractService):
 
         posts_from_cache: list[models.PostDomain] = []
         if use_cache:
+            logger.info(f"Feed from cache {self.feed_key(user_id)}")
             lock = self._redis.lock(
                 name=self.lock_key(user_id), timeout=self._lock_timeout
             )
@@ -233,11 +239,18 @@ class FeedService(abstract.AbstractService):
                 await lock.release()
 
         if (
+            len(posts_from_cache) < limit
+            and len(posts_from_cache) + offset <= self._capacity
+        ):
+            return posts_from_cache
+
+        if (
             len(posts_from_cache) >= limit
             or self._capacity < len(posts_from_cache) + offset
         ):
             return posts_from_cache[: limit + 1]
 
+        logger.info("Feed from db")
         async for _ in self.uow.transaction():
             posts_from_db = await self.uow.posts.feed(
                 user_id=user_id,

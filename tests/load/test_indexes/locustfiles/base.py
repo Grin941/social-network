@@ -82,7 +82,7 @@ class BaseSetupTeardown(mixin.AsyncMixin):
             cursor = await transaction.execute_raw_query("SELECT COUNT(*) FROM users")
             (count,) = cursor.fetchone()
 
-        entities_count = self._settings.user_generator.entities_count - count
+        entities_count = self._settings.data_generator.entities_count - count
 
         if entities_count <= 0:
             return
@@ -90,10 +90,10 @@ class BaseSetupTeardown(mixin.AsyncMixin):
         batch = []
         for user in self._generator.generate_users(
             entities_count=entities_count,
-            bio_sentences_count=self._settings.user_generator.bio_sentences_count,
+            bio_sentences_count=self._settings.data_generator.bio_sentences_count,
         ):
             batch.append(user)
-            if len(batch) == self._settings.user_generator.batch_count:
+            if len(batch) == self._settings.data_generator.batch_count:
                 async for _ in self._uow.transaction():
                     await self._uow.users.batch_create(batch)
                 self._logger.debug(
@@ -135,13 +135,13 @@ class BaseSearchUser(locust.HttpUser):
             locale=load_tests_settings.locale,
         )
 
-    @locust.task(load_tests_settings.user_generator.search_ratio)
+    @locust.task(load_tests_settings.data_generator.search_ratio)
     def search(self) -> None:
         first_name_splitted = self._generator.generate_name()[
-            : self._settings.user_generator.name_split_count
+            : self._settings.data_generator.name_split_count
         ]
         last_name_splitted = self._generator.generate_last_name()[
-            : self._settings.user_generator.name_split_count
+            : self._settings.data_generator.name_split_count
         ]
         self._logger.debug(f"Searching for {first_name_splitted} {last_name_splitted}")
         response = self.client.get(
@@ -150,10 +150,10 @@ class BaseSearchUser(locust.HttpUser):
         )
         self._logger.debug(f"Found: {response.json()}")
 
-    @locust.task(load_tests_settings.user_generator.registration_ratio)
+    @locust.task(load_tests_settings.data_generator.registration_ratio)
     def register(self) -> None:
         new_user = self._generator.generate_user(
-            bio_sentences_count=self._settings.user_generator.bio_sentences_count
+            bio_sentences_count=self._settings.data_generator.bio_sentences_count
         )
         response = self.client.post(
             "/user/register",

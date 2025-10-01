@@ -98,18 +98,22 @@ class Bootstrap:
                 self._generator.generate_posts(
                     user_id=user_id,
                     entities_count=random.randint(
-                        1, self._settings.generator.max_posts_per_user_count
+                        min(20, self._settings.generator.max_posts_per_user_count),
+                        self._settings.generator.max_posts_per_user_count,
                     ),
                 )
             )
         )
         friends_count = random.randint(
-            1, self._settings.generator.max_user_friends_count
+            min(50, self._settings.generator.max_user_friends_count),
+            self._settings.generator.max_user_friends_count,
         )
         users = await self._uow.users.batch_create(
             [
                 self._make_user(_)
-                for _ in self._generator.generate_users(entities_count=friends_count)
+                for _ in self._generator.generate_users(
+                    entities_count=friends_count, password=self._settings.my_password
+                )
             ]
         )
 
@@ -138,7 +142,7 @@ class Bootstrap:
         return friends_count
 
     async def _bootstrap(self) -> None:
-        logger.debug("Bootstrap started")
+        logger.info("Bootstrap started")
         async for transaction in self._uow.transaction():
             count = (
                 await transaction.execute_raw_query("SELECT COUNT(*) FROM users")
@@ -155,7 +159,7 @@ class Bootstrap:
                     id_=self._settings.my_uuid,
                 )
                 friends_count = await self._make_user_entities(myself.id)
-            logger.debug(f"Generated {friends_count} my friends")
+            logger.info(f"Generated {friends_count} my friends")
             users_to_create_cnt = self._settings.generator.users_count - (
                 friends_count + 1
             )
@@ -163,11 +167,13 @@ class Bootstrap:
             users_to_create_cnt = self._settings.generator.users_count - count
         while users_to_create_cnt > 0:
             async for _ in self._uow.transaction():
-                user = await self._uow.users.create(self._generator.generate_user())
+                user = await self._uow.users.create(
+                    self._generator.generate_user(password=self._settings.my_password)
+                )
                 friends_count = await self._make_user_entities(user.id)
-            logger.debug(f"Generated {friends_count} '{user.id}' friends")
+            logger.info(f"Generated {friends_count} '{user.id}' friends")
             users_to_create_cnt -= friends_count + 1
-        logger.debug("Bootstrap finished")
+        logger.info("Bootstrap finished")
 
     def bootstrap(self) -> None:
         self._run_async(self._bootstrap())

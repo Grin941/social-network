@@ -59,9 +59,12 @@ class DataGenerator:
         entities_count: int,
         bio_sentences_count: int = const.BIO_SENTENCES_COUNT,
         sex: typing.Optional[int] = None,
+        password: typing.Optional[str] = None,
     ) -> typing.Generator[models.NewUserDomain, None, None]:
         for i in range(entities_count):
-            yield self.generate_user(bio_sentences_count=bio_sentences_count, sex=sex)
+            yield self.generate_user(
+                bio_sentences_count=bio_sentences_count, sex=sex, password=password
+            )
 
     def generate_post(
         self,

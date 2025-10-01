@@ -97,7 +97,7 @@ class PostRepository(
         await session.execute(
             sqlalchemy.text(
                 "UPDATE posts "
-                "SET author_id = :author_id, text = :text, updated_at = :updated_at, deleted_at = :deleted_at "
+                "SET text = :text, updated_at = :updated_at, deleted_at = :deleted_at "
                 "WHERE id = :id"
             ),
             item.model_dump(),

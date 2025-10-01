@@ -78,13 +78,13 @@ async def update_post(
     | responses.response_503,
 )
 async def delete_post(
-    post_id: typing.Annotated[uuid.UUID, fastapi.Path(title="Идентификатор поста")],
+    id: typing.Annotated[uuid.UUID, fastapi.Path(title="Идентификатор поста")],
     request_user: dependencies.RequestUser,
     post_service: dependencies.PostService,
     feed_service: dependencies.FeedService,
 ) -> fastapi.Response:
-    await post_service.delete_post(post_id=post_id, user_id=request_user.id)
-    await feed_service.delete_post(user_id=request_user.id, post_id=post_id)
+    await post_service.delete_post(post_id=id, user_id=request_user.id)
+    await feed_service.delete_post(user_id=request_user.id, post_id=id)
     return fastapi.Response(status_code=status.HTTP_200_OK)
 
 

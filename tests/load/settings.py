@@ -5,7 +5,7 @@ import pydantic
 import pydantic_settings
 
 from data_generator import const as generator_const
-from social_network.settings import DbSettings, ServerSettings
+from social_network.settings import AuthSettings, DbSettings, ServerSettings
 from tests.load import const as test_const
 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class TimescaleSettings(pydantic_settings.BaseSettings):
         logger.info(f"timescale.database={self.database}")
 
 
-class UserGeneratorSettings(pydantic_settings.BaseSettings):
+class DataGeneratorSettings(pydantic_settings.BaseSettings):
     bio_sentences_count: int = generator_const.BIO_SENTENCES_COUNT
     entities_count: int = test_const.ENTITIES_COUNT
     batch_count: int = test_const.BATCH_COUNT
@@ -34,15 +34,27 @@ class UserGeneratorSettings(pydantic_settings.BaseSettings):
     search_ratio: int = 10
     get_ratio: int = 10
     registration_ratio: int = 10
+    feed_ratio: int = 1000
+    add_friend_ratio: int = 10
+    delete_friend_ratio: int = 10
+    write_post_ratio: int = 100
+    update_post_ratio: int = 10
+    delete_post_ratio: int = 10
 
     def print_to_log(self) -> None:
-        logger.info(f"user.bio_sentences_count={self.bio_sentences_count}")
-        logger.info(f"user.entities_count={self.entities_count}")
-        logger.info(f"user.batch_count={self.batch_count}")
-        logger.info(f"user.name_split_count={self.name_split_count}")
-        logger.info(f"user.search_ratio={self.search_ratio}")
-        logger.info(f"user.get_ratio={self.get_ratio}")
-        logger.info(f"user.registration_ratio={self.registration_ratio}")
+        logger.info(f"generator.bio_sentences_count={self.bio_sentences_count}")
+        logger.info(f"generator.entities_count={self.entities_count}")
+        logger.info(f"generator.batch_count={self.batch_count}")
+        logger.info(f"generator.name_split_count={self.name_split_count}")
+        logger.info(f"generator.search_ratio={self.search_ratio}")
+        logger.info(f"generator.get_ratio={self.get_ratio}")
+        logger.info(f"generator.registration_ratio={self.registration_ratio}")
+        logger.info(f"generator.feed_ratio={self.feed_ratio}")
+        logger.info(f"generator.add_friend_ratio={self.add_friend_ratio}")
+        logger.info(f"generator.delete_friend_ratio={self.delete_friend_ratio}")
+        logger.info(f"generator.write_post_ratio={self.write_post_ratio}")
+        logger.info(f"generator.update_post_ratio={self.update_post_ratio}")
+        logger.info(f"generator.delete_post_ratio={self.delete_post_ratio}")
 
 
 class LoadTestsSettings(pydantic_settings.BaseSettings):
@@ -54,8 +66,9 @@ class LoadTestsSettings(pydantic_settings.BaseSettings):
     server: ServerSettings = pydantic.Field(default_factory=ServerSettings)
     timescale: TimescaleSettings = pydantic.Field(default_factory=TimescaleSettings)
     db: DbSettings = pydantic.Field(default_factory=DbSettings)
-    user_generator: UserGeneratorSettings = pydantic.Field(
-        default_factory=UserGeneratorSettings
+    auth: AuthSettings = pydantic.Field(default_factory=AuthSettings)
+    data_generator: DataGeneratorSettings = pydantic.Field(
+        default_factory=DataGeneratorSettings
     )
 
     log_level: str = "DEBUG"
@@ -88,7 +101,8 @@ class LoadTestsSettings(pydantic_settings.BaseSettings):
         self.server.print_to_log()
         self.timescale.print_to_log()
         self.db.print_to_log()
-        self.user_generator.print_to_log()
+        self.auth.print_to_log()
+        self.data_generator.print_to_log()
         logger.info(f"settings.level={self.log_level}")
         logger.info(f"settings.locale={self.locale}")
         logger.info(f"settings.seed={self.seed}")
