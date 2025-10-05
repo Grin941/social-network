@@ -1,36 +1,19 @@
 import typing
-import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from social_network.domain import models
 from social_network.infrastructure.database import repository
 from social_network.infrastructure.database.uow import abstract
 
 
-class UserRepository(repository.UserRepository):
-    async def create_myself(
-        self, item: models.NewUserDomain, id_: uuid.UUID
-    ) -> models.UserDomain:
-        session = self._get_db_session()
-        await session.execute(
-            self._create_statement,
-            item.model_dump() | {"id": str(id_)},
-        )
-
-        return await self.find_one(str(id_))
-
-
-class BootstrapUnitOfWork(abstract.AbstractUnitOfWork):
+class ChatUnitOfWork(abstract.AbstractUnitOfWork):
     def __init__(
         self,
         database_name: str,
-        user_repository: UserRepository,
-        friend_repository: repository.FriendRepository,
-        post_repository: repository.PostRepository,
         chat_repository: repository.ChatRepository,
         chat_participant_repository: repository.ChatParticipantRepository,
         chat_message_repository: repository.ChatMessageRepository,
+        user_repository: repository.UserRepository,
         master_factory: async_sessionmaker[AsyncSession],
         slave_factory: typing.Optional[async_sessionmaker[AsyncSession]] = None,
         timeout_seconds: int = 0,
@@ -42,19 +25,15 @@ class BootstrapUnitOfWork(abstract.AbstractUnitOfWork):
             timeout_seconds=timeout_seconds,
         )
 
-        self.users = user_repository
-        self.friends = friend_repository
-        self.posts = post_repository
         self.chats = chat_repository
         self.participants = chat_participant_repository
         self.messages = chat_message_repository
+        self.users = user_repository
 
     async def _init_repositories(
         self, session: typing.Optional[AsyncSession] = None
     ) -> None:
-        self.users(session)
-        self.friends(session)
-        self.posts(session)
         self.chats(session)
         self.participants(session)
         self.messages(session)
+        self.users(session)

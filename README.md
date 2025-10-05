@@ -26,6 +26,11 @@ make serve
 $ set -a && source .env && set +a && docker compose -f devops/social_network/docker-compose.yaml up --build
 ```
 
+### Документация API
+
+- FastAPI swagger: http://127.0.0.1:${SERVER__BIND_PORT}/docs
+- [Postman Collection](https://github.com/Grin941/social-network/blob/main/devops/social_network/postman_collection.json)
+
 ## Локальная разработка
 
 ### Управление проектом

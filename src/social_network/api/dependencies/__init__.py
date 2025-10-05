@@ -1,11 +1,13 @@
 from social_network.api.dependencies.auth import RequestUser, verify_access_token
 from social_network.api.dependencies.services import (
     AuthService,
+    ChatService,
     FeedService,
     FriendService,
     PostService,
     UserService,
     get_auth_service,
+    get_chat_service,
     get_feed_service,
     get_friend_service,
     get_post_service,
@@ -14,6 +16,7 @@ from social_network.api.dependencies.services import (
 
 __all__ = [
     "AuthService",
+    "ChatService",
     "FeedService",
     "FriendService",
     "FriendService",
@@ -21,6 +24,7 @@ __all__ = [
     "RequestUser",
     "UserService",
     "get_auth_service",
+    "get_chat_service",
     "get_feed_service",
     "get_friend_service",
     "get_post_service",
