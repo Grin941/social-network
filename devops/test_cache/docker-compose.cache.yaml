@@ -73,6 +73,19 @@ services:
     networks:
       - cache-network
 
+  redis-desktop-manager:
+    image: redis/redisinsight:2.70
+    restart: always
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis-insight-data-cache:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - cache-network
+
   redis-exporter:
     extends:
       file: ../common-services.yml

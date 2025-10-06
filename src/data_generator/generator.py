@@ -82,3 +82,28 @@ class DataGenerator:
     ) -> typing.Generator[models.NewPostDomain, None, None]:
         for i in range(entities_count):
             yield self.generate_post(user_id=user_id)
+
+    @staticmethod
+    def generate_dialog(
+        user_id: uuid.UUID,
+        friend_id: uuid.UUID,
+    ) -> models.NewChatDomain:
+        return models.NewChatDomain(name=f"{friend_id} - {user_id}")
+
+    @staticmethod
+    def generate_dialog_participant(
+        user_id: uuid.UUID,
+        chat_id: uuid.UUID,
+    ) -> models.NewChatParticipantDomain:
+        return models.NewChatParticipantDomain(user_id=user_id, chat_id=chat_id)
+
+    def generate_message(
+        self,
+        user_id: uuid.UUID,
+        chat_id: uuid.UUID,
+    ) -> models.NewChatMessageDomain:
+        return models.NewChatMessageDomain(
+            author_id=user_id,
+            chat_id=chat_id,
+            text=self.generate_text(nb_sentences=1),
+        )

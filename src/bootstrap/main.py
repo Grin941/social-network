@@ -31,6 +31,9 @@ class Bootstrap:
             user_repository=uow.UserRepository(),
             friend_repository=repository.FriendRepository(),
             post_repository=repository.PostRepository(),
+            chat_repository=repository.ChatRepository(),
+            chat_participant_repository=repository.ChatParticipantRepository(),
+            chat_message_repository=repository.ChatMessageRepository(),
             master_factory=async_sessionmaker(
                 create_async_engine(
                     url=self._settings.db.connection_url,
@@ -119,6 +122,8 @@ class Bootstrap:
 
         friends_to_make = []
         posts_to_make = []
+        chat_participants_to_make = []
+        messages_to_make = []
         for user in users:
             friends_to_make.extend(
                 self._make_friends(user_id=user_id, friend_id=user.id)
@@ -133,10 +138,31 @@ class Bootstrap:
                     )
                 )
             )
+            chat = await self._uow.chats.create(
+                self._generator.generate_dialog(user_id=user_id, friend_id=user.id)
+            )
+            chat_participants_to_make.extend(
+                [
+                    self._generator.generate_dialog_participant(
+                        user_id=user_id, chat_id=chat.id
+                    ),
+                    self._generator.generate_dialog_participant(
+                        user_id=user.id, chat_id=chat.id
+                    ),
+                ]
+            )
+            messages_to_make.extend(
+                [
+                    self._generator.generate_message(user_id=user_id, chat_id=chat.id),
+                    self._generator.generate_message(user_id=user.id, chat_id=chat.id),
+                ]
+            )
 
         await asyncio.gather(
             self._uow.friends.batch_create(friends_to_make),
             self._uow.posts.batch_create(posts_to_make),
+            self._uow.participants.batch_create(chat_participants_to_make),
+            self._uow.messages.batch_create(messages_to_make),
         )
 
         return friends_count

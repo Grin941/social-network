@@ -1,0 +1,163 @@
+services:
+  timescaledb:
+    extends:
+      file: ../common-services.yml
+      service: timescaledb-common
+    volumes:
+      - timescaledb-data-no-sharding:/var/lib/postgresql/data
+    networks:
+      - no-sharding-network
+
+  citus_master:
+    image: "citusdata/citus:13.0.3"
+    ports: [ "${COORDINATOR_EXTERNAL_PORT:-5432}:5432" ]
+    labels: [ "com.citusdata.role=Master" ]
+    environment: &AUTH
+      POSTGRES_USER: "${DB__USER}"
+      POSTGRES_PASSWORD: "${DB__PASSWORD}"
+      POSTGRES_DB: "${DB__NAME}"
+      PGUSER: "${DB__USER}"
+      PGPASSWORD: "${DB__PASSWORD}"
+      POSTGRES_HOST_AUTH_METHOD: "${POSTGRES_HOST_AUTH_METHOD:-trust}"
+    volumes:
+      - ./max_conns.sql:/docker-entrypoint-initdb.d/max_conns.sql
+    networks:
+      - no-sharding-network
+
+  citus_worker-1:
+    image: "citusdata/citus:13.0.3"
+    labels: [ "com.citusdata.role=Worker" ]
+    depends_on: [ citus_manager ]
+    environment: *AUTH
+    command: "/wait-for-manager.sh"
+    volumes:
+      - citus-healthcheck-volume:/healthcheck
+    networks:
+      - no-sharding-network
+
+  citus_worker-2:
+    image: "citusdata/citus:13.0.3"
+    labels: [ "com.citusdata.role=Worker" ]
+    depends_on: [ citus_manager ]
+    environment: *AUTH
+    command: "/wait-for-manager.sh"
+    volumes:
+      - citus-healthcheck-volume:/healthcheck
+    networks:
+      - no-sharding-network
+
+  citus_manager:
+    image: "citusdata/membership-manager:0.3.0"
+    volumes:
+      - "${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
+      - citus-healthcheck-volume:/healthcheck
+    depends_on: [ citus_master ]
+    environment:
+      CITUS_HOST: citus_master
+      POSTGRES_PASSWORD: "${DB__PASSWORD}"
+      POSTGRES_USER: "${DB__USER}"
+      POSTGRES_DB: "${DB__NAME}"
+    networks:
+      - no-sharding-network
+
+  migration:
+    build:
+      context: ../..
+      dockerfile: devops/social_network/Dockerfile
+    command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade 8927218df365
+    environment:
+      DB__HOST: citus_master
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+    depends_on:
+      citus_master:
+        condition: service_healthy
+    networks:
+      - no-sharding-network
+
+  bootstrap:
+    extends:
+      file: ../common-services.yml
+      service: bootstrap-common
+    environment:
+      DB__HOST: citus_master
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+      MY_PASSWORD: ${MY_PASSWORD}
+      MY_UUID: ${MY_UUID}
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - no-sharding-network
+
+  social-network:
+    build:
+      context: ../..
+      dockerfile: devops/social_network/Dockerfile
+    command: python -m social_network.main
+    ports:
+      - "${SERVER__BIND_PORT}:${SERVER__BIND_PORT}"
+    environment:
+      LEVEL: "INFO"
+      SERVER__BIND_PORT: ${SERVER__BIND_PORT}
+      SERVER__BIND_HOST: "0.0.0.0"
+      SERVER__WORKERS: "1"
+      DB__TYPENAME: "postgresql+asyncpg"
+      DB__HOST: citus_master
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+      DB__POOL_SIZE: "1"
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+      SENTRY__DSN: ${SENTRY_DSN:-}
+      REDIS__HOST: "redis"
+      REDIS__PORT: ${REDIS__PORT}
+    depends_on:
+      citus_master:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - no-sharding-network
+
+  prometheus:
+    extends:
+      file: ../common-services.yml
+      service: prometheus-common
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-no-sharding:/prometheus
+    networks:
+      - no-sharding-network
+
+  grafana:
+    extends:
+      file: ../common-services.yml
+      service: grafana-common
+    volumes:
+      - grafana-no-sharding:/var/lib/grafana
+      - ../monitoring/grafana-provisioning/:/etc/grafana/provisioning
+    networks:
+      - no-sharding-network
+
+volumes:
+  no-sharding-pg-data:
+  timescaledb-data-no-sharding:
+  prometheus-no-sharding:
+  grafana-no-sharding:
+  citus-healthcheck-volume:
+
+networks:
+  no-sharding-network:
+    driver: bridge

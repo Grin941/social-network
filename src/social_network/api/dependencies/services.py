@@ -70,6 +70,20 @@ async def get_feed_service(request: requests.Request) -> services.FeedService:
     )
 
 
+async def get_chat_service(request: requests.Request) -> services.ChatService:
+    return services.ChatService(
+        unit_of_work=uow.ChatUnitOfWork(
+            database_name=request.state.settings.db.name,
+            master_factory=request.state.master_factory,
+            slave_factory=request.state.slave_factory,
+            chat_repository=repository.ChatRepository(),
+            chat_participant_repository=repository.ChatParticipantRepository(),
+            chat_message_repository=repository.ChatMessageRepository(),
+            user_repository=repository.UserRepository(),
+        ),
+    )
+
+
 AuthService = typing.Annotated[services.AuthService, fastapi.Depends(get_auth_service)]
 UserService = typing.Annotated[services.UserService, fastapi.Depends(get_user_service)]
 FriendService = typing.Annotated[
@@ -77,3 +91,4 @@ FriendService = typing.Annotated[
 ]
 PostService = typing.Annotated[services.PostService, fastapi.Depends(get_post_service)]
 FeedService = typing.Annotated[services.FeedService, fastapi.Depends(get_feed_service)]
+ChatService = typing.Annotated[services.ChatService, fastapi.Depends(get_chat_service)]

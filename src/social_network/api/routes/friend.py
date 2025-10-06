@@ -1,3 +1,4 @@
+import asyncio
 import typing
 import uuid
 
@@ -27,9 +28,11 @@ async def set_friend(
     request_user: dependencies.RequestUser,
     friend_service: dependencies.FriendService,
     feed_service: dependencies.FeedService,
+    chat_service: dependencies.ChatService,
 ) -> dto.FriendDTO:
-    friendship = await friend_service.make_friendship(
-        user=request_user, friend_id=user_id
+    friendship, _ = await asyncio.gather(
+        friend_service.make_friendship(user=request_user, friend_id=user_id),
+        chat_service.make_dialog(user=request_user, friend_id=user_id),
     )
     await feed_service.add_friend(user_id=request_user.id, friend_id=user_id)
     return schema_mappers.FriendMapper.map_domain_to_dto(friendship)

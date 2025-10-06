@@ -28,6 +28,9 @@ class BootstrapUnitOfWork(abstract.AbstractUnitOfWork):
         user_repository: UserRepository,
         friend_repository: repository.FriendRepository,
         post_repository: repository.PostRepository,
+        chat_repository: repository.ChatRepository,
+        chat_participant_repository: repository.ChatParticipantRepository,
+        chat_message_repository: repository.ChatMessageRepository,
         master_factory: async_sessionmaker[AsyncSession],
         slave_factory: typing.Optional[async_sessionmaker[AsyncSession]] = None,
         timeout_seconds: int = 0,
@@ -42,6 +45,9 @@ class BootstrapUnitOfWork(abstract.AbstractUnitOfWork):
         self.users = user_repository
         self.friends = friend_repository
         self.posts = post_repository
+        self.chats = chat_repository
+        self.participants = chat_participant_repository
+        self.messages = chat_message_repository
 
     async def _init_repositories(
         self, session: typing.Optional[AsyncSession] = None
@@ -49,3 +55,6 @@ class BootstrapUnitOfWork(abstract.AbstractUnitOfWork):
         self.users(session)
         self.friends(session)
         self.posts(session)
+        self.chats(session)
+        self.participants(session)
+        self.messages(session)

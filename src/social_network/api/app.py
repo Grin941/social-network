@@ -15,6 +15,7 @@ from starlette import requests, responses, status
 from social_network import settings
 from social_network.api import requests as api_requests
 from social_network.api.models import common
+from social_network.api.routes import chat as chat_routes
 from social_network.api.routes import friend as friend_routes
 from social_network.api.routes import login as login_routes
 from social_network.api.routes import post as post_routes
@@ -129,6 +130,7 @@ def build_application() -> fastapi.FastAPI:
     app.include_router(user_routes.router)
     app.include_router(friend_routes.router)
     app.include_router(post_routes.router)
+    app.include_router(chat_routes.router)
     app.add_middleware(api_requests.RequestIdMiddleware)
 
     customize_openapi(app)

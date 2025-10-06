@@ -48,6 +48,15 @@ class FriendNotFoundError(NotFoundError):
         )
 
 
+class DialogNotFoundError(NotFoundError):
+    code = 4
+
+    def __init__(self, user_id: str, friend_id: str) -> None:
+        super().__init__(
+            message=f"Dialog between user '{user_id}' and his friend '{friend_id}' not found"
+        )
+
+
 class AuthError(DomainError):
     suffix = "AUTH"
 
