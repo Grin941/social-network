@@ -1,3 +1,4 @@
+import datetime
 import typing
 import uuid
 
@@ -51,16 +52,18 @@ class ChatMessageORM(mixins.CreatedAtUpdatedAtDeletedAtMixin, base.BaseORM):
     id: sqlalchemy.orm.Mapped[uuid.UUID] = sqlalchemy.orm.MappedColumn(
         primary_key=True, default=uuid.uuid4
     )
-    author_id: sqlalchemy.orm.Mapped[uuid.UUID] = sqlalchemy.orm.MappedColumn(
-        sqlalchemy.ForeignKey(
-            user.UserORM.id, onupdate="RESTRICT", ondelete="RESTRICT"
-        ),
+    created_at: sqlalchemy.orm.Mapped[datetime.datetime] = sqlalchemy.orm.MappedColumn(
         nullable=False,
-        index=True,
+        default=lambda: datetime.datetime.now(datetime.timezone.utc),
+        primary_key=True,
     )
     chat_id: sqlalchemy.orm.Mapped[uuid.UUID] = sqlalchemy.orm.MappedColumn(
-        sqlalchemy.ForeignKey(ChatORM.id, onupdate="RESTRICT", ondelete="RESTRICT"),
         nullable=False,
-        index=True,
+        primary_key=True,
+    )
+    author_id: sqlalchemy.orm.Mapped[uuid.UUID] = sqlalchemy.orm.MappedColumn(
+        nullable=False
     )
     text: sqlalchemy.orm.Mapped[str] = sqlalchemy.orm.MappedColumn(nullable=False)
+
+    __table_args__ = ({"postgresql_partition_by": "RANGE (created_at)"},)

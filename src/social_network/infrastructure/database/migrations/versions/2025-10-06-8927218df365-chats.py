@@ -1,8 +1,8 @@
 """chats
 
-Revision ID: 89456e22475c
+Revision ID: 8927218df365
 Revises: 88cb3e9697cd
-Create Date: 2025-10-05 20:54:25.039879
+Create Date: 2025-10-06 18:44:08.349565
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "89456e22475c"
+revision: str = "8927218df365"
 down_revision: Union[str, None] = "88cb3e9697cd"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -37,24 +37,14 @@ def upgrade() -> None:
     op.create_table(
         "chat_messages",
         sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("author_id", sa.UUID(), nullable=False),
         sa.Column("chat_id", sa.UUID(), nullable=False),
+        sa.Column("text", sa.VARCHAR(length=256), nullable=False),
         sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["author_id"], ["users.id"], onupdate="RESTRICT", ondelete="RESTRICT"
-        ),
-        sa.ForeignKeyConstraint(
-            ["chat_id"], ["chats.id"], onupdate="RESTRICT", ondelete="RESTRICT"
-        ),
-        sa.PrimaryKeyConstraint("id"),
-    )
-    op.create_index(
-        op.f("ix_chat_messages_author_id"), "chat_messages", ["author_id"], unique=False
-    )
-    op.create_index(
-        op.f("ix_chat_messages_chat_id"), "chat_messages", ["chat_id"], unique=False
+        sa.PrimaryKeyConstraint("id", "chat_id", "created_at"),
+        postgresql_partition_by="RANGE (created_at)",
     )
     op.create_table(
         "chat_participants",
@@ -93,8 +83,6 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_chat_participants_user_id"), table_name="chat_participants")
     op.drop_index(op.f("ix_chat_participants_chat_id"), table_name="chat_participants")
     op.drop_table("chat_participants")
-    op.drop_index(op.f("ix_chat_messages_chat_id"), table_name="chat_messages")
-    op.drop_index(op.f("ix_chat_messages_author_id"), table_name="chat_messages")
     op.drop_table("chat_messages")
     op.drop_table("chats")
     # ### end Alembic commands ###

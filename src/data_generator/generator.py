@@ -96,3 +96,14 @@ class DataGenerator:
         chat_id: uuid.UUID,
     ) -> models.NewChatParticipantDomain:
         return models.NewChatParticipantDomain(user_id=user_id, chat_id=chat_id)
+
+    def generate_message(
+        self,
+        user_id: uuid.UUID,
+        chat_id: uuid.UUID,
+    ) -> models.NewChatMessageDomain:
+        return models.NewChatMessageDomain(
+            author_id=user_id,
+            chat_id=chat_id,
+            text=self.generate_text(nb_sentences=1),
+        )

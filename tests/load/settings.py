@@ -40,6 +40,8 @@ class DataGeneratorSettings(pydantic_settings.BaseSettings):
     write_post_ratio: int = 100
     update_post_ratio: int = 10
     delete_post_ratio: int = 10
+    write_message_ratio: int = 1
+    read_dialog_ratio: int = 2
 
     def print_to_log(self) -> None:
         logger.info(f"generator.bio_sentences_count={self.bio_sentences_count}")
@@ -55,6 +57,8 @@ class DataGeneratorSettings(pydantic_settings.BaseSettings):
         logger.info(f"generator.write_post_ratio={self.write_post_ratio}")
         logger.info(f"generator.update_post_ratio={self.update_post_ratio}")
         logger.info(f"generator.delete_post_ratio={self.delete_post_ratio}")
+        logger.info(f"generator.write_message_ratio={self.write_message_ratio}")
+        logger.info(f"generator.read_dialog_ratio={self.read_dialog_ratio}")
 
 
 class LoadTestsSettings(pydantic_settings.BaseSettings):
