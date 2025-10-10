@@ -54,6 +54,12 @@ async def get_post_service(request: requests.Request) -> services.PostService:
     )
 
 
+async def get_async_feed_service(
+    request: requests.Request,
+) -> services.AsyncFeedService:
+    return await services.AsyncFeedService.create(request.state.rmq)
+
+
 async def get_feed_service(request: requests.Request) -> services.FeedService:
     return services.FeedService(
         unit_of_work=uow.FeedUnitOfWork(
@@ -64,6 +70,7 @@ async def get_feed_service(request: requests.Request) -> services.FeedService:
             friend_repository=repository.FriendRepository(),
         ),
         redis=request.state.redis,
+        async_feed_service=await get_async_feed_service(request),
         cache_capacity=request.state.settings.redis.feed_capacity,
         ttl=request.state.settings.redis.ttl,
         lock_timeout=request.state.settings.redis.lock_timeout,
@@ -90,5 +97,8 @@ FriendService = typing.Annotated[
     services.FriendService, fastapi.Depends(get_friend_service)
 ]
 PostService = typing.Annotated[services.PostService, fastapi.Depends(get_post_service)]
+AsyncFeedService = typing.Annotated[
+    services.AsyncFeedService, fastapi.Depends(get_async_feed_service)
+]
 FeedService = typing.Annotated[services.FeedService, fastapi.Depends(get_feed_service)]
 ChatService = typing.Annotated[services.ChatService, fastapi.Depends(get_chat_service)]

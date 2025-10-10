@@ -4,6 +4,7 @@ import uuid
 import fastapi
 from fastapi import status
 from redis import asyncio as aioredis
+from starlette import websockets
 
 from social_network.api import dependencies, responses, schema_mappers
 from social_network.api import models as dto
@@ -134,3 +135,21 @@ async def feed_posts(
             user_id=request_user.id, offset=offset, limit=limit
         )
     return [schema_mappers.PostMapper.map_domain_to_dto(post) for post in posts]
+
+
+@router.websocket("/post/feed/posted")
+async def ws_post_feed(
+    websocket: websockets.WebSocket,
+    ws_manager: dependencies.WsManager,
+    request_user: dependencies.RequestUser,
+) -> None:
+    """
+    Устанавливает вэб-сокет соединение для отправки постов в режиме реального времени
+    """
+    await ws_manager.connect(websocket, request_user)
+    while True:
+        try:
+            await websocket.receive_text()
+        except websockets.WebSocketDisconnect:
+            ws_manager.disconnect(websocket)
+            break

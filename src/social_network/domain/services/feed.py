@@ -6,8 +6,10 @@ import logging
 import typing
 import uuid
 
+import aio_pika.abc
 from redis import asyncio as aioredis
 
+from social_network.api import models as dto
 from social_network.domain import models
 from social_network.domain.services import abstract
 from social_network.infrastructure.database import uow
@@ -29,16 +31,75 @@ def handle_redis_error():
     return wrapper
 
 
+def handle_rmq_error():
+    def wrapper(func):
+        @functools.wraps(func)
+        async def wrapped(*args, **kwargs) -> typing.Any:
+            try:
+                return await func(*args, **kwargs)
+            except aio_pika.exceptions.AMQPError:
+                pass
+
+        return wrapped
+
+    return wrapper
+
+
+class AsyncFeedService(abstract.AbstractAsyncService):
+    @classmethod
+    async def create(
+        cls, rmq_channel: aio_pika.abc.AbstractRobustChannel
+    ) -> "AsyncFeedService":
+        exchange = await rmq_channel.declare_exchange(
+            "posts_feed", aio_pika.ExchangeType.DIRECT
+        )
+        self = cls(exchange=exchange, channel=rmq_channel)
+        return self
+
+    async def bind(self, user_id: uuid.UUID) -> aio_pika.abc.AbstractQueue:
+        queue = await self._channel.declare_queue(
+            name=f"feed:{user_id}", durable=True, exclusive=True
+        )
+        await queue.bind(self._exchange, routing_key=f"feed:{user_id}")
+        return queue
+
+    @handle_rmq_error()
+    async def publish(
+        self, data: models.PostDomain, to: typing.Optional[uuid.UUID] = None
+    ) -> None:
+        routing_key = "feed"
+        if to:
+            routing_key = f"{routing_key}:{to}"
+
+        await self._exchange.publish(
+            message=aio_pika.Message(
+                json.dumps(
+                    dto.PostWsDTO(
+                        payload=dto.PostWsPayload(
+                            postId=data.id,
+                            postText=data.text,
+                            author_user_id=data.author_id,
+                        )
+                    ).model_dump()
+                ).encode(),
+                delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
+            ),
+            routing_key=routing_key,
+        )
+
+
 class FeedService(abstract.AbstractService):
     def __init__(
         self,
         unit_of_work: uow.FeedUnitOfWork,
         redis: aioredis.Redis,
+        async_feed_service: AsyncFeedService,
         cache_capacity: int = 1000,
         ttl: int = 600,
         lock_timeout: float = 60.0,
     ) -> None:
         super().__init__(unit_of_work)
+        self._async_feed_service = async_feed_service
         self._capacity = cache_capacity
         self._ttl = ttl
         self._lock_timeout = lock_timeout
@@ -115,6 +176,7 @@ class FeedService(abstract.AbstractService):
                 filters={"user_id": user_id},
             )
         for friend in friends:
+            await self._async_feed_service.publish(data=post, to=friend.id)
             async with self._redis.lock(
                 name=self.lock_key(friend.friend_id),
                 blocking_timeout=self._lock_timeout,

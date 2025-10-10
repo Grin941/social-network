@@ -1,11 +1,13 @@
 from social_network.api.dependencies.auth import RequestUser, verify_access_token
 from social_network.api.dependencies.services import (
+    AsyncFeedService,
     AuthService,
     ChatService,
     FeedService,
     FriendService,
     PostService,
     UserService,
+    get_async_feed_service,
     get_auth_service,
     get_chat_service,
     get_feed_service,
@@ -13,8 +15,10 @@ from social_network.api.dependencies.services import (
     get_post_service,
     get_user_service,
 )
+from social_network.api.dependencies.ws import WsManager, get_feed_ws_manager
 
 __all__ = [
+    "AsyncFeedService",
     "AuthService",
     "ChatService",
     "FeedService",
@@ -23,9 +27,12 @@ __all__ = [
     "PostService",
     "RequestUser",
     "UserService",
+    "WsManager",
+    "get_async_feed_service",
     "get_auth_service",
     "get_chat_service",
     "get_feed_service",
+    "get_feed_ws_manager",
     "get_friend_service",
     "get_post_service",
     "get_user_service",
