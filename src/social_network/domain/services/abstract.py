@@ -20,8 +20,8 @@ class AbstractService(abc.ABC):
 class AbstractAsyncService(abc.ABC):
     def __init__(
         self,
-        exchange: aio_pika.abc.AbstractRobustExchange,
-        channel: aio_pika.abc.AbstractChannel,
+        exchange: typing.Optional[aio_pika.abc.AbstractRobustExchange],
+        channel: typing.Optional[aio_pika.abc.AbstractChannel],
     ) -> None:
         self._exchange = exchange
         self._channel = channel
@@ -33,7 +33,9 @@ class AbstractAsyncService(abc.ABC):
     ) -> "AbstractAsyncService": ...
 
     @abc.abstractmethod
-    async def bind(self, user_id: uuid.UUID) -> aio_pika.abc.AbstractQueue: ...
+    async def bind(
+        self, user_id: uuid.UUID
+    ) -> typing.Optional[aio_pika.abc.AbstractQueue]: ...
 
     @abc.abstractmethod
     async def publish(

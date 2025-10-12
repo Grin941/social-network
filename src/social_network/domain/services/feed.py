@@ -48,19 +48,25 @@ def handle_rmq_error():
 class AsyncFeedService(abstract.AbstractAsyncService):
     @classmethod
     async def create(
-        cls, rmq_channel: aio_pika.abc.AbstractRobustChannel
+        cls, rmq_channel: typing.Optional[aio_pika.abc.AbstractRobustChannel]
     ) -> "AsyncFeedService":
-        exchange = await rmq_channel.declare_exchange(
-            "posts_feed", aio_pika.ExchangeType.DIRECT
-        )
+        exchange = None
+        if rmq_channel:
+            exchange = await rmq_channel.declare_exchange(
+                "posts_feed", aio_pika.ExchangeType.DIRECT
+            )
         self = cls(exchange=exchange, channel=rmq_channel)
         return self
 
-    async def bind(self, user_id: uuid.UUID) -> aio_pika.abc.AbstractQueue:
-        queue = await self._channel.declare_queue(
-            name=f"feed:{user_id}", durable=True, exclusive=True
-        )
-        await queue.bind(self._exchange, routing_key=f"feed:{user_id}")
+    async def bind(
+        self, user_id: uuid.UUID
+    ) -> typing.Optional[aio_pika.abc.AbstractQueue]:
+        queue = None
+        if self._channel and self._exchange:
+            queue = await self._channel.declare_queue(
+                name=f"feed:{user_id}", durable=True, exclusive=True
+            )
+            await queue.bind(self._exchange, routing_key=f"feed:{user_id}")
         return queue
 
     @handle_rmq_error()
@@ -71,21 +77,22 @@ class AsyncFeedService(abstract.AbstractAsyncService):
         if to:
             routing_key = f"{routing_key}:{to}"
 
-        await self._exchange.publish(
-            message=aio_pika.Message(
-                json.dumps(
-                    dto.PostWsDTO(
-                        payload=dto.PostWsPayload(
-                            postId=data.id,
-                            postText=data.text,
-                            author_user_id=data.author_id,
-                        )
-                    ).model_dump()
-                ).encode(),
-                delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
-            ),
-            routing_key=routing_key,
-        )
+        if self._exchange:
+            await self._exchange.publish(
+                message=aio_pika.Message(
+                    json.dumps(
+                        dto.PostWsDTO(
+                            payload=dto.PostWsPayload(
+                                postId=data.id,
+                                postText=data.text,
+                                author_user_id=data.author_id,
+                            )
+                        ).model_dump()
+                    ).encode(),
+                    delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
+                ),
+                routing_key=routing_key,
+            )
 
 
 class FeedService(abstract.AbstractService):

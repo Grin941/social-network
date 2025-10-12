@@ -69,7 +69,7 @@ async def _validation_exception_handler(
 class ApplicationState(typing.TypedDict):
     settings: settings.SocialNetworkSettings
     redis: aioredis.Redis
-    rmq: aio_pika.abc.AbstractChannel
+    rmq: typing.Optional[aio_pika.abc.AbstractChannel]
     master_factory: async_sessionmaker[AsyncSession]
     slave_factory: typing.Optional[async_sessionmaker[AsyncSession]]
 
@@ -83,11 +83,17 @@ async def lifespan(
 
     redis = aioredis.from_url(social_network_settings.redis.connection_url)
 
-    rmq_connection = await aio_pika.connect_robust(
-        social_network_settings.rmq.connection_url
-    )
-    rmq_channel = await rmq_connection.channel()
-    await rmq_channel.set_qos(prefetch_count=social_network_settings.rmq.prefetch_count)
+    rmq_connection = rmq_channel = None
+    try:
+        rmq_connection = await aio_pika.connect_robust(
+            social_network_settings.rmq.connection_url
+        )
+        rmq_channel = await rmq_connection.channel()
+        await rmq_channel.set_qos(
+            prefetch_count=social_network_settings.rmq.prefetch_count
+        )
+    except aio_pika.exceptions.AMQPError as e:
+        logger.warning(f"Failed to connect to RMQ: {e}")
 
     master = create_async_engine(
         url=social_network_settings.db.connection_url,
@@ -112,9 +118,11 @@ async def lifespan(
         else async_sessionmaker(slave, expire_on_commit=False),
     )
 
-    coros = [redis.close(), master.dispose(), rmq_connection.close()]
+    coros = [redis.close(), master.dispose()]
     if slave:
         coros.append(slave.dispose())
+    if rmq_connection:
+        coros.append(rmq_connection.close())
 
     await asyncio.gather(*coros)
 
