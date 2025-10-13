@@ -15,25 +15,25 @@
 ![Architecture](./media/architecture.png)
 
 Алгоритм составления ленты
-1. пользователи - друзья автора логинятся и получают JWT-token `POST /login`
-2. пользователи посылают запрос на открытие вэб-сокета: `WS /post/feed/posted?token=<token>`
+1. пользователи - друзья автора [логинятся](https://github.com/Grin941/social-network/blob/main/src/social_network/api/routes/login.py#L21) и получают JWT-token `POST /login`
+2. пользователи посылают запрос на [открытие вэб-сокета](https://github.com/Grin941/social-network/blob/main/src/social_network/api/routes/post.py#L143): `WS /post/feed/posted?token=<token>`
 3. приложение подписывает пользователя на обновление ленты
-   - открывается сокет
-   - создается RMQ очередь `feed:{user_id}`
-   - очередь биндится по routing key `feed:{user_id}`
-4. пользователь-автор авторизуется и получает JWT-token `POST /login`
-5. пользователь автор публикует пост `POST /post/create`
-6. пост сохраняется в БД
-7. приложение кэширует пост и добавляет его в ленту каждому другу пользователя (см [домашку по кэшам](https://github.com/Grin941/social-network/tree/main/tests/load/test_cache))
-8. для каждого друга автора в RMQ публикуется сообщение (postId, postText, author_user_id) по routing key `feed:{friend_id}`
+   - [открывается сокет](https://github.com/Grin941/social-network/blob/main/src/social_network/infrastructure/ws/ws.py#L78)
+   - [создается RMQ очередь](https://github.com/Grin941/social-network/blob/main/src/social_network/infrastructure/ws/ws.py#L79) `feed:{user_id}`
+   - [очередь биндится](https://github.com/Grin941/social-network/blob/main/src/social_network/domain/services/feed.py#L61) по routing key `feed:{user_id}`
+4. пользователь-автор [авторизуется](https://github.com/Grin941/social-network/blob/main/src/social_network/api/routes/login.py#L21) и получает JWT-token `POST /login`
+5. пользователь автор [публикует пост](https://github.com/Grin941/social-network/blob/main/src/social_network/api/routes/post.py#L29) `POST /post/create`
+6. пост [сохраняется в БД](https://github.com/Grin941/social-network/blob/main/src/social_network/domain/services/post.py#L20)
+7. приложение [кэширует](https://github.com/Grin941/social-network/blob/main/src/social_network/domain/services/feed.py#L228) пост и добавляет его в ленту каждому другу пользователя (см [домашку по кэшам](https://github.com/Grin941/social-network/tree/main/tests/load/test_cache))
+8. для каждого друга автора в RMQ [публикуется](https://github.com/Grin941/social-network/blob/main/src/social_network/domain/services/feed.py#L227) сообщение (postId, postText, author_user_id) по routing key `feed:{friend_id}`
 9. друзья автора получают новый пост по вэб-сокету
-   - каждый сокет связан со своей очередью (binding по routing_key, зависящему от user id)
+   - каждый сокет связан [со своей очередью](https://github.com/Grin941/social-network/blob/main/src/social_network/infrastructure/ws/ws.py#L22) (binding по routing_key, зависящему от user id)
    - таким образом, обеспечиваем отправку поста только целевым пользователям (друзьям)
-   - на очередь навешен коллбэк, который сериализует новый пост из очереди и отправляет его в сокет
+   - на очередь навешен [коллбэк](https://github.com/Grin941/social-network/blob/main/src/social_network/infrastructure/ws/ws.py#L55), который [сериализует новый пост из очереди и отправляет его в сокет](https://github.com/Grin941/social-network/blob/main/src/social_network/domain/services/feed.py#L73)
 
 Эффект Леди Гаги
 - после 6 шага алгоритма приложение получает список друзей пользователей
-- если количество друзей пользователя превышает `CELEBRITY_FRIENDS_THRESHOLD` (500 друзей по умолчанию), считаем что пользователь селебрити
+- если количество друзей пользователя [превышает](https://github.com/Grin941/social-network/blob/main/src/social_network/domain/services/feed.py#L219) `CELEBRITY_FRIENDS_THRESHOLD` (500 друзей по умолчанию), считаем что пользователь селебрити
   - не обновляем ленту его друзей в очереди
   - не обновляем ленту его друзей в кэше
 - в противном случае переходим к шагу 7
