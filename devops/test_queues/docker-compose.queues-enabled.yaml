@@ -81,6 +81,20 @@ services:
     networks:
       - pg-network-enabled-queues
 
+  redis:
+    image: redis:8.2.1
+    ports:
+      - "${REDIS__PORT}:${REDIS__PORT}"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis-data-enabled-queues:/data
+    networks:
+      - pg-network-enabled-queues
+
   social-network:
     extends:
       file: ../common-services.yml
@@ -109,6 +123,8 @@ services:
       postgres:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       migration:
         condition: service_completed_successfully
@@ -141,6 +157,7 @@ volumes:
   grafana-enabled-queues:
   rabbitmq-data-enabled-queues:
   prometheus-enabled-queues:
+  redis-data-enabled-queues:
 
 networks:
   pg-network-enabled-queues:

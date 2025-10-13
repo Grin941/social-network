@@ -151,7 +151,8 @@ async def ws_post_feed(
     await ws_manager.connect(websocket, request_user)
     while True:
         try:
-            await websocket.receive_text()
+            message = await websocket.receive_text()
+            logger.info(f"Received message: {message}")
         except websockets.WebSocketDisconnect as e:
             logger.error(f"Websocket exception: {e}")
             ws_manager.disconnect(websocket)

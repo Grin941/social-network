@@ -57,6 +57,20 @@ services:
     networks:
       - pg-network-disabled-queues
 
+  redis:
+    image: redis:8.2.1
+    ports:
+      - "${REDIS__PORT}:${REDIS__PORT}"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis-data-disabled-queues:/data
+    networks:
+      - pg-network-disabled-queues
+
   social-network:
     extends:
       file: ../common-services.yml
@@ -79,6 +93,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       migration:
         condition: service_completed_successfully
     networks:
@@ -98,6 +114,7 @@ volumes:
   timescaledb-data-disabled-queues:
   pg-data-disabled-queues:
   grafana-disabled-queues:
+  redis-data-disabled-queues:
 
 networks:
   pg-network-disabled-queues:

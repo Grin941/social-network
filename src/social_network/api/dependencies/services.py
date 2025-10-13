@@ -89,6 +89,7 @@ async def get_feed_service(request: requests.Request) -> services.FeedService:
         cache_capacity=request.state.settings.redis.feed_capacity,
         ttl=request.state.settings.redis.ttl,
         lock_timeout=request.state.settings.redis.lock_timeout,
+        celebrity_friends_threshold=request.state.settings.celebrity_friends_threshold,
     )
 
 

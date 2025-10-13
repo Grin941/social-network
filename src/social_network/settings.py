@@ -79,7 +79,7 @@ class RedisSettings(pydantic.BaseModel):
 class RmqSettings(pydantic.BaseModel):
     protocol: str = "amqp"
     host: str = "127.0.0.1"
-    port: int = 15672
+    port: int = 5672
     username: str = "socnet"
     password: str = ""
     vhost: str = "socialnetwork"
@@ -146,6 +146,8 @@ class SocialNetworkSettings(pydantic_settings.BaseSettings):
     auth: AuthSettings = pydantic.Field(default_factory=AuthSettings)
     sentry: SentrySettings = pydantic.Field(default_factory=SentrySettings)
 
+    celebrity_friends_threshold: int = 500
+
     level: str = "INFO"
 
     @property
@@ -181,4 +183,7 @@ class SocialNetworkSettings(pydantic_settings.BaseSettings):
         self.rmq.print_to_log()
         self.auth.print_to_log()
         self.sentry.print_to_log()
+        logger.info(
+            f"settings.celebrity_friends_threshold={self.celebrity_friends_threshold}"
+        )
         logger.info(f"settings.level={self.level}")

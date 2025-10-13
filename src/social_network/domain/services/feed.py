@@ -78,6 +78,7 @@ class AsyncFeedService(abstract.AbstractAsyncService):
             routing_key = f"{routing_key}:{to}"
 
         if self._exchange:
+            logger.info(f"publishing {data} to {routing_key}")
             await self._exchange.publish(
                 message=aio_pika.Message(
                     json.dumps(
@@ -87,7 +88,7 @@ class AsyncFeedService(abstract.AbstractAsyncService):
                                 postText=data.text,
                                 author_user_id=data.author_id,
                             )
-                        ).model_dump()
+                        ).model_dump_json()
                     ).encode(),
                     delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
                 ),
@@ -104,6 +105,7 @@ class FeedService(abstract.AbstractService):
         cache_capacity: int = 1000,
         ttl: int = 600,
         lock_timeout: float = 60.0,
+        celebrity_friends_threshold: int = 500,
     ) -> None:
         super().__init__(unit_of_work)
         self._async_feed_service = async_feed_service
@@ -111,6 +113,7 @@ class FeedService(abstract.AbstractService):
         self._ttl = ttl
         self._lock_timeout = lock_timeout
         self._redis = redis
+        self._celebrity_friends_threshold = celebrity_friends_threshold
 
     @property
     def uow(self) -> uow.FeedUnitOfWork:
@@ -176,43 +179,54 @@ class FeedService(abstract.AbstractService):
         await self._expire(user_id=user_id, ttl=self._ttl)
 
     @handle_redis_error()
+    async def _cache_post(
+        self, friend: models.FriendDomain, post: models.PostDomain
+    ) -> None:
+        async with self._redis.lock(
+            name=self.lock_key(friend.friend_id),
+            blocking_timeout=self._lock_timeout,
+        ):
+            posts_count = await self._count(friend.friend_id)
+            if not posts_count:
+                logger.info(
+                    f"Cache {self.feed_key(friend.friend_id)} is not warmed up yet. Skip."
+                )
+                return
+
+            is_expired = await self._is_expired(user_id=friend.friend_id)
+            if is_expired:
+                logger.info(
+                    f"Cache {self.feed_key(friend.friend_id)} is expired. Warm up"
+                )
+                await self._warm_up(user_id=friend.friend_id)
+                return
+
+            if extra_feed_posts_count := max(-1, posts_count - self._capacity) + 1:
+                await self._redis.zpopmin(
+                    self.feed_key(friend.friend_id), extra_feed_posts_count
+                )
+
+            await self._add(post=post, user_id=friend.friend_id)
+            await self._expire(user_id=friend.friend_id, ttl=self._ttl)
+            logger.info(f"Added post {post.id} to {self.feed_key(friend.friend_id)}")
+
     async def add_post(self, user_id: uuid.UUID, post: models.PostDomain) -> None:
         async for _ in self.uow.transaction():
             friends = await self.uow.friends.find_all(
                 exclude_deleted=True,
                 filters={"user_id": user_id},
             )
+        if len(friends) > self._celebrity_friends_threshold:
+            # Невилируем эффект Леди Гаги.
+            # Пользователи делятся на селебрити и обычных.
+            # Для селебрити они просто добавляют посты, для обычных - добавляют посты и обновляют ленту
+            return None
+
         for friend in friends:
-            await self._async_feed_service.publish(data=post, to=friend.id)
-            async with self._redis.lock(
-                name=self.lock_key(friend.friend_id),
-                blocking_timeout=self._lock_timeout,
-            ):
-                posts_count = await self._count(friend.friend_id)
-                if not posts_count:
-                    logger.info(
-                        f"Cache {self.feed_key(friend.friend_id)} is not warmed up yet. Skip."
-                    )
-                    continue
-
-                is_expired = await self._is_expired(user_id=friend.friend_id)
-                if is_expired:
-                    logger.info(
-                        f"Cache {self.feed_key(friend.friend_id)} is expired. Warm up"
-                    )
-                    await self._warm_up(user_id=friend.friend_id)
-                    continue
-
-                if extra_feed_posts_count := max(-1, posts_count - self._capacity) + 1:
-                    await self._redis.zpopmin(
-                        self.feed_key(friend.friend_id), extra_feed_posts_count
-                    )
-
-                await self._add(post=post, user_id=friend.friend_id)
-                await self._expire(user_id=friend.friend_id, ttl=self._ttl)
-                logger.info(
-                    f"Added post {post.id} to {self.feed_key(friend.friend_id)}"
-                )
+            await asyncio.gather(
+                self._async_feed_service.publish(data=post, to=friend.friend_id),
+                self._cache_post(friend=friend, post=post),
+            )
 
     @handle_redis_error()
     async def delete_post(self, user_id: uuid.UUID, post_id: uuid.UUID) -> None:
