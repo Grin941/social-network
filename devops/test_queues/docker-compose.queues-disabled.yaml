@@ -1,0 +1,121 @@
+services:
+  timescaledb:
+    extends:
+      file: ../common-services.yml
+      service: timescaledb-common
+    volumes:
+      - timescaledb-data-disabled-queues:/var/lib/postgresql/data
+    networks:
+      - pg-network-disabled-queues
+
+  postgres:
+    extends:
+      file: ../common-services.yml
+      service: postgres-common
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data-disabled-queues:/var/lib/postgresql/data
+    networks:
+      - pg-network-disabled-queues
+
+  migration:
+    extends:
+      file: ../common-services.yml
+      service: migration-common
+    command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade e04f753fc730
+    environment:
+      DB__HOST: postgres
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+    networks:
+      - pg-network-disabled-queues
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  bootstrap:
+    extends:
+      file: ../common-services.yml
+      service: bootstrap-common
+    environment:
+      DB__HOST: postgres
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+      MY_PASSWORD: ${MY_PASSWORD}
+      MY_UUID: ${MY_UUID}
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - pg-network-disabled-queues
+
+  redis:
+    image: redis:8.2.1
+    ports:
+      - "${REDIS__PORT}:${REDIS__PORT}"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis-data-disabled-queues:/data
+    networks:
+      - pg-network-disabled-queues
+
+  social-network:
+    extends:
+      file: ../common-services.yml
+      service: social-network-common
+    environment:
+      LEVEL: "INFO"
+      SERVER__BIND_PORT: ${SERVER__BIND_PORT}
+      SERVER__BIND_HOST: "0.0.0.0"
+      SERVER__WORKERS: "1"
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+      SENTRY__DSN: ${SENTRY_DSN:-}
+      DB__PORT: ${DB__PORT}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__HOST: postgres
+      DB__USER: ${DB__USER}
+      DB__NAME: ${DB__NAME}
+      DB__POOL_SIZE: ${DB__POOL_SIZE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - pg-network-disabled-queues
+
+  grafana:
+    extends:
+      file: ../common-services.yml
+      service: grafana-common
+    volumes:
+      - grafana-disabled-queues:/var/lib/grafana
+      - ../monitoring/grafana-provisioning/:/etc/grafana/provisioning
+    networks:
+      - pg-network-disabled-queues
+
+volumes:
+  timescaledb-data-disabled-queues:
+  pg-data-disabled-queues:
+  grafana-disabled-queues:
+  redis-data-disabled-queues:
+
+networks:
+  pg-network-disabled-queues:
+    driver: bridge

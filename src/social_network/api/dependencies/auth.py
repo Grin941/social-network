@@ -16,4 +16,13 @@ async def verify_access_token(
     return await auth_service.authorize(token)
 
 
+async def verify_ws_access_token(
+    auth_service: services.WsAuthService, token: str = fastapi.Query(...)
+) -> user.UserDomain:
+    return await auth_service.authorize(token)
+
+
 RequestUser = typing.Annotated[user.UserDomain, fastapi.Depends(verify_access_token)]
+WsRequestUser = typing.Annotated[
+    user.UserDomain, fastapi.Depends(verify_ws_access_token)
+]

@@ -76,6 +76,37 @@ class RedisSettings(pydantic.BaseModel):
         logger.info(f"redis.lock_timeout={self.lock_timeout}")
 
 
+class RmqSettings(pydantic.BaseModel):
+    protocol: str = "amqp"
+    host: str = "127.0.0.1"
+    port: int = 5672
+    username: str = "socnet"
+    password: str = ""
+    vhost: str = "socialnetwork"
+    reconnect_interval: int = 5
+    fail_fast: int = 1
+    prefetch_count: int = 1
+
+    @property
+    def connection_url(self) -> str:
+        return (
+            f"{self.protocol}://{self.username}:{self.password}@"
+            f"{self.host}:{self.port}/{self.vhost}?"
+            f"reconnect_interval={self.reconnect_interval}&fail_fast={self.fail_fast}"
+        )
+
+    def print_to_log(self) -> None:
+        logger.info(f"rmq.protocol={self.protocol}")
+        logger.info(f"rmq.host={self.host}")
+        logger.debug(f"rmq.port={self.port}")
+        logger.info(f"rmq.username={self.username}")
+        logger.info(f"rmq.password={self.password}")
+        logger.info(f"rmq.vhost={self.vhost}")
+        logger.info(f"rmq.reconnect_interval={self.reconnect_interval}")
+        logger.info(f"rmq.fail_fast={self.fail_fast}")
+        logger.info(f"rmq.prefetch_count={self.prefetch_count}")
+
+
 class AuthSettings(pydantic.BaseModel):
     secret: str = ""
     algorithm: str = "HS256"
@@ -111,8 +142,11 @@ class SocialNetworkSettings(pydantic_settings.BaseSettings):
     server: ServerSettings = pydantic.Field(default_factory=ServerSettings)
     db: DbSettings = pydantic.Field(default_factory=DbSettings)
     redis: RedisSettings = pydantic.Field(default_factory=RedisSettings)
+    rmq: RmqSettings = pydantic.Field(default_factory=RmqSettings)
     auth: AuthSettings = pydantic.Field(default_factory=AuthSettings)
     sentry: SentrySettings = pydantic.Field(default_factory=SentrySettings)
+
+    celebrity_friends_threshold: int = 500
 
     level: str = "INFO"
 
@@ -146,6 +180,10 @@ class SocialNetworkSettings(pydantic_settings.BaseSettings):
         self.server.print_to_log()
         self.db.print_to_log()
         self.redis.print_to_log()
+        self.rmq.print_to_log()
         self.auth.print_to_log()
         self.sentry.print_to_log()
+        logger.info(
+            f"settings.celebrity_friends_threshold={self.celebrity_friends_threshold}"
+        )
         logger.info(f"settings.level={self.level}")

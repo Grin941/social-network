@@ -9,7 +9,7 @@ uv:  ## Install uv if it's not present.
 .PHONY: install
 install: uv  ## Install the virtual environment and install the pre-commit hooks
 	@echo "Creating virtual environment using uv"
-	@uv sync --dev
+	@uv sync --dev --no-config
 	@uv run pre-commit install
 
 .PHONY: fix

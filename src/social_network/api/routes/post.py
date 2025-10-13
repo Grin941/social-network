@@ -1,14 +1,17 @@
+import logging
 import typing
 import uuid
 
 import fastapi
 from fastapi import status
 from redis import asyncio as aioredis
+from starlette import websockets
 
 from social_network.api import dependencies, responses, schema_mappers
 from social_network.api import models as dto
 
 router = fastapi.APIRouter(prefix="/post")
+logger = logging.getLogger(__name__)
 
 
 @router.post(
@@ -134,3 +137,23 @@ async def feed_posts(
             user_id=request_user.id, offset=offset, limit=limit
         )
     return [schema_mappers.PostMapper.map_domain_to_dto(post) for post in posts]
+
+
+@router.websocket("/feed/posted")
+async def ws_post_feed(
+    websocket: fastapi.WebSocket,
+    ws_manager: dependencies.WsManager,
+    request_user: dependencies.WsRequestUser,
+) -> None:
+    """
+    Устанавливает вэб-сокет соединение для отправки постов в режиме реального времени
+    """
+    await ws_manager.connect(websocket, request_user)
+    while True:
+        try:
+            message = await websocket.receive_text()
+            logger.info(f"Received message: {message}")
+        except websockets.WebSocketDisconnect as e:
+            logger.error(f"Websocket exception: {e}")
+            ws_manager.disconnect(websocket)
+            break

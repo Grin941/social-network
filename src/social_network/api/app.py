@@ -4,6 +4,8 @@ import datetime
 import logging
 import typing
 
+import aio_pika
+import aio_pika.abc
 import fastapi
 import sentry_sdk
 from fastapi import encoders
@@ -67,6 +69,7 @@ async def _validation_exception_handler(
 class ApplicationState(typing.TypedDict):
     settings: settings.SocialNetworkSettings
     redis: aioredis.Redis
+    rmq: typing.Optional[aio_pika.abc.AbstractChannel]
     master_factory: async_sessionmaker[AsyncSession]
     slave_factory: typing.Optional[async_sessionmaker[AsyncSession]]
 
@@ -79,6 +82,19 @@ async def lifespan(
     app.debug = social_network_settings.level == "DEBUG"
 
     redis = aioredis.from_url(social_network_settings.redis.connection_url)
+
+    rmq_connection = rmq_channel = None
+    try:
+        rmq_connection = await aio_pika.connect_robust(
+            social_network_settings.rmq.connection_url
+        )
+        rmq_channel = await rmq_connection.channel()
+        await rmq_channel.set_qos(
+            prefetch_count=social_network_settings.rmq.prefetch_count
+        )
+    except aio_pika.exceptions.AMQPError as e:
+        logger.warning(f"Failed to connect to RMQ: {e}")
+
     master = create_async_engine(
         url=social_network_settings.db.connection_url,
         echo=social_network_settings.level == "DEBUG",
@@ -95,6 +111,7 @@ async def lifespan(
     yield ApplicationState(
         settings=social_network_settings,
         redis=redis,
+        rmq=rmq_channel,
         master_factory=async_sessionmaker(master, expire_on_commit=False),
         slave_factory=None
         if social_network_settings.db.ro_connection_url is None
@@ -104,6 +121,8 @@ async def lifespan(
     coros = [redis.close(), master.dispose()]
     if slave:
         coros.append(slave.dispose())
+    if rmq_connection:
+        coros.append(rmq_connection.close())
 
     await asyncio.gather(*coros)
 
