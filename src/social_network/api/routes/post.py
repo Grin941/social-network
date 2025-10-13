@@ -1,3 +1,4 @@
+import logging
 import typing
 import uuid
 
@@ -10,6 +11,7 @@ from social_network.api import dependencies, responses, schema_mappers
 from social_network.api import models as dto
 
 router = fastapi.APIRouter(prefix="/post")
+logger = logging.getLogger(__name__)
 
 
 @router.post(
@@ -137,11 +139,11 @@ async def feed_posts(
     return [schema_mappers.PostMapper.map_domain_to_dto(post) for post in posts]
 
 
-@router.websocket("/post/feed/posted")
+@router.websocket("/feed/posted")
 async def ws_post_feed(
-    websocket: websockets.WebSocket,
+    websocket: fastapi.WebSocket,
     ws_manager: dependencies.WsManager,
-    request_user: dependencies.RequestUser,
+    request_user: dependencies.WsRequestUser,
 ) -> None:
     """
     Устанавливает вэб-сокет соединение для отправки постов в режиме реального времени
@@ -150,6 +152,7 @@ async def ws_post_feed(
     while True:
         try:
             await websocket.receive_text()
-        except websockets.WebSocketDisconnect:
+        except websockets.WebSocketDisconnect as e:
+            logger.error(f"Websocket exception: {e}")
             ws_manager.disconnect(websocket)
             break

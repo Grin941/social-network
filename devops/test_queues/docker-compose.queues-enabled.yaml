@@ -1,0 +1,147 @@
+services:
+  timescaledb:
+    extends:
+      file: ../common-services.yml
+      service: timescaledb-common
+    volumes:
+      - timescaledb-data-enabled-queues:/var/lib/postgresql/data
+    networks:
+      - pg-network-enabled-queues
+
+  postgres:
+    extends:
+      file: ../common-services.yml
+      service: postgres-common
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data-enabled-queues:/var/lib/postgresql/data
+    networks:
+      - pg-network-enabled-queues
+
+  rabbitmq:
+    build:
+      context: ../.
+      dockerfile: test_queues/rabbitmq/Dockerfile
+    ports:
+      - "5672:5672" # Standard AMQP port
+      - "15672:15672" # Management UI port
+      - "15692:15692" # Prometheus metrics port
+    volumes:
+      - rabbitmq-data-enabled-queues:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RMQ__USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RMQ__PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${RMQ__VHOST}
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: ["bash", "-c", "chmod 400 /var/lib/rabbitmq/.erlang.cookie; rabbitmq-server"]
+    networks:
+      - pg-network-enabled-queues
+
+  migration:
+    extends:
+      file: ../common-services.yml
+      service: migration-common
+    command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade e04f753fc730
+    environment:
+      DB__HOST: postgres
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+    networks:
+      - pg-network-enabled-queues
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  bootstrap:
+    extends:
+      file: ../common-services.yml
+      service: bootstrap-common
+    environment:
+      DB__HOST: postgres
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+      MY_PASSWORD: ${MY_PASSWORD}
+      MY_UUID: ${MY_UUID}
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - pg-network-enabled-queues
+
+  social-network:
+    extends:
+      file: ../common-services.yml
+      service: social-network-common
+    environment:
+      LEVEL: "INFO"
+      SERVER__BIND_PORT: ${SERVER__BIND_PORT}
+      SERVER__BIND_HOST: "0.0.0.0"
+      SERVER__WORKERS: "1"
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+      SENTRY__DSN: ${SENTRY_DSN:-}
+      DB__PORT: ${DB__PORT}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__HOST: postgres
+      DB__USER: ${DB__USER}
+      DB__NAME: ${DB__NAME}
+      DB__POOL_SIZE: ${DB__POOL_SIZE}
+      RMQ__USERNAME: ${RMQ__USERNAME}
+      RMQ__PASSWORD: ${RMQ__PASSWORD}
+      RMQ__VHOST: ${RMQ__VHOST}
+      RMQ__HOST: "rabbitmq"
+      RMQ__PORT: "5672"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - pg-network-enabled-queues
+
+  prometheus:
+    extends:
+      file: ../common-services.yml
+      service: prometheus-common
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-enabled-queues:/prometheus
+    networks:
+      - pg-network-enabled-queues
+
+  grafana:
+    extends:
+      file: ../common-services.yml
+      service: grafana-common
+    volumes:
+      - grafana-enabled-queues:/var/lib/grafana
+      - ../monitoring/grafana-provisioning/:/etc/grafana/provisioning
+    networks:
+      - pg-network-enabled-queues
+
+volumes:
+  timescaledb-data-enabled-queues:
+  pg-data-enabled-queues:
+  grafana-enabled-queues:
+  rabbitmq-data-enabled-queues:
+  prometheus-enabled-queues:
+
+networks:
+  pg-network-enabled-queues:
+    driver: bridge

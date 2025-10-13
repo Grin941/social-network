@@ -7,7 +7,7 @@ from social_network.infrastructure import ws
 
 
 async def get_feed_ws_manager(
-    async_feed_service: services.AsyncFeedService,
+    async_feed_service: services.AsyncWsFeedService,
 ) -> ws.WSConnectionManager:
     return ws.WSConnectionManager(async_service=async_feed_service)
 
