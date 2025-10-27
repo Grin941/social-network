@@ -10,6 +10,7 @@
 3. [Кэширование](https://github.com/Grin941/social-network/tree/main/tests/load/test_cache)
 4. [Шардирование](https://github.com/Grin941/social-network/tree/main/tests/load/test_sharding)
 5. [Очереди и отложенное выполнение](https://github.com/Grin941/social-network/tree/main/tests/load/test_queues)
+6. [In-Memory СУБД](https://github.com/Grin941/social-network/tree/main/tests/load/test_in_memory_db)
 
 ## Развертывание
 

@@ -1,0 +1,193 @@
+services:
+  timescaledb:
+    extends:
+      file: ../common-services.yml
+      service: timescaledb-common
+    volumes:
+      - timescaledb-data-udf:/var/lib/postgresql/data
+    networks:
+      - cache-network
+
+  postgres:
+    image: postgres:17.5
+    environment:
+      POSTGRES_USER: ${DB__USER}
+      POSTGRES_PASSWORD: ${DB__PASSWORD}
+      POSTGRES_DB: ${DB__NAME}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB__USER} -d ${DB__NAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    volumes:
+      - pg-data-udf:/var/lib/postgresql/data
+    networks:
+      - udf-network
+
+
+  postgresql-exporter:
+    extends:
+      file: ../common-services.yml
+      service: postgresql-exporter-common
+    ports:
+      - "9187:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB__USER}:${DB__PASSWORD}@postgres:5432/${DB__NAME}?sslmode=disable"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - udf-network
+
+  migration:
+    build:
+      context: ../..
+      dockerfile: devops/social_network/Dockerfile
+    command: python -m alembic -c social_network/infrastructure/database/migrations/alembic.ini upgrade head
+    environment:
+      DB__HOST: postgres
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - udf-network
+
+  redis:
+    image: redis:8.2.1
+    ports:
+      - "${REDIS__PORT}:${REDIS__PORT}"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis-data-cache:/data
+      - ../../src/social_network/infrastructure/redis_udf/redis_udf.lua /usr/local/etc/redis/redis_udf.lua
+    networks:
+      - udf-network
+
+  redis-desktop-manager:
+    image: redis/redisinsight:2.70
+    restart: always
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis-insight-data-udf:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - udf-network
+
+  redis-exporter:
+    extends:
+      file: ../common-services.yml
+      service: redis-exporter-common
+    depends_on:
+      - redis
+    networks:
+      - udf-network
+
+  bootstrap:
+    extends:
+      file: ../common-services.yml
+      service: bootstrap-common
+    environment:
+      DB__HOST: postgres
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+      MY_PASSWORD: ${MY_PASSWORD}
+      MY_UUID: ${MY_UUID}
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+      REDIS__HOST: "redis"
+      REDIS__PORT: ${REDIS__PORT}
+      REDIS_UDF_IS_ENABLED: True
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    networks:
+      - udf-network
+
+  social-network:
+    build:
+      context: ../..
+      dockerfile: devops/social_network/Dockerfile
+    command: python -m social_network.main
+    ports:
+      - "${SERVER__BIND_PORT}:${SERVER__BIND_PORT}"
+    environment:
+      LEVEL: "INFO"
+      SERVER__BIND_PORT: ${SERVER__BIND_PORT}
+      SERVER__BIND_HOST: "0.0.0.0"
+      SERVER__WORKERS: "1"
+      DB__TYPENAME: "postgresql+asyncpg"
+      DB__HOST: postgres
+      DB__PORT: 5432
+      DB__USER: ${DB__USER}
+      DB__PASSWORD: ${DB__PASSWORD}
+      DB__NAME: ${DB__NAME}
+      DB__POOL_SIZE: "1"
+      AUTH__SECRET: ${AUTH__SECRET}
+      AUTH__ALGORITHM: "HS256"
+      AUTH__TOKEN_TTL_SECONDS: "604800"
+      SENTRY__DSN: ${SENTRY_DSN:-}
+      REDIS__HOST: "redis"
+      REDIS__PORT: ${REDIS__PORT}
+      REDIS_UDF_IS_ENABLED: True
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      bootstrap:
+        condition: service_completed_successfully
+    networks:
+      - udf-network
+
+  prometheus:
+    extends:
+      file: ../common-services.yml
+      service: prometheus-common
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-udf:/prometheus
+    networks:
+      - udf-network
+
+  grafana:
+    extends:
+      file: ../common-services.yml
+      service: grafana-common
+    volumes:
+      - grafana-udf:/var/lib/grafana
+      - ../monitoring/grafana-provisioning/:/etc/grafana/provisioning
+    networks:
+      - udf-network
+
+volumes:
+  pg-data-udf:
+  redis-data-udf:
+  redis-insight-data-udf:
+  prometheus-udf:
+  grafana-udf:
+  timescaledb-data-udf:
+
+networks:
+  udf-network:
+    driver: bridge
