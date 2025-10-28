@@ -142,7 +142,7 @@ set -a && source .env && set +a && locust -f tests/load/test_in_memory_db/locust
 
 Число ошибок 2, что равно 0.1% от общего числа запросов
 
-![RPS / Throughput](./media/rps-after.png)
+![RPS / Throughput](./media/rps-udf.png)
 
 Cредний RPS = 7.2.
 Начал падать после 800 пользователей.
