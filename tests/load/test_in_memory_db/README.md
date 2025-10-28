@@ -26,19 +26,19 @@
 - оперативно находить сообщения чата по идентификатору чата
 
 Алгоритм создания чата
-1. находим друга по friend_id в Postgres,
-2. если друг не найден, выбрасываем исключение FriendNotFoundError
-2. вызываем UDF-процедуру `make_dialog`и по ключу `dialog:user_id:friend_id` записываем метаданные диалога `{id: uuid, name: str, owner_id: Optional[uuid]}`
+1. [находим](https://github.com/Grin941/social-network/blob/main/src/social_network/domain/services/chat.py#L53) друга по friend_id в Postgres,
+2. если друг не найден, [выбрасываем исключение](https://github.com/Grin941/social-network/blob/main/src/social_network/domain/services/chat.py#L54) FriendNotFoundError
+2. вызываем [UDF-процедуру](https://github.com/Grin941/social-network/blob/main/src/social_network/infrastructure/redis_udf/redis_udf.lua#L3) `make_dialog`и по ключу `dialog:user_id:friend_id` записываем метаданные диалога `{id: uuid, name: str, owner_id: Optional[uuid]}`
 
 Алгоритм написания сообщения
-1. вызываем UDF-процедуру `get_dialog` и находим чат по ключу `dialog:user_id:friend_id` или `dialog:user_id:friend_id`
-2. если чат не найден, выбрасываем исключение DialogNotFoundError
-3. вызываем UDF-процедуру `write_message` и по ключу `messages:dialog_id` записываем сообщение `{id: uuid, author_id: uuid, chat_id: uuid, message: str}` с rang = creation timestamp
+1. вызываем [UDF-процедуру](https://github.com/Grin941/social-network/blob/main/src/social_network/infrastructure/redis_udf/redis_udf.lua#L13) `get_dialog` и находим чат по ключу `dialog:user_id:friend_id` или `dialog:user_id:friend_id`
+2. если чат не найден, [выбрасываем исключение](https://github.com/Grin941/social-network/blob/main/src/social_network/domain/services/chat.py#L87) DialogNotFoundError
+3. вызываем [UDF-процедуру](https://github.com/Grin941/social-network/blob/main/src/social_network/infrastructure/redis_udf/redis_udf.lua#L19) `write_message` и по ключу `messages:dialog_id` записываем сообщение `{id: uuid, author_id: uuid, chat_id: uuid, message: str}` с rang = creation timestamp
 
 Алгоритм получения сообщений чата
-1. вызываем UDF-процедуру `get_dialog` и находим чат по ключу `dialog:user_id:friend_id` или `dialog:user_id:friend_id`
-2. если чат не найден, выбрасываем исключение DialogNotFoundError
-3. вызываем UDF-процедуру `show_messages` и по ключу `messages:dialog_id` возвращаем сообщения `[{id: uuid, author_id: uuid, chat_id: uuid, message: str}]` с сортировкой по rang
+1. вызываем [UDF-процедуру](https://github.com/Grin941/social-network/blob/main/src/social_network/infrastructure/redis_udf/redis_udf.lua#L13) `get_dialog` и находим чат по ключу `dialog:user_id:friend_id` или `dialog:user_id:friend_id`
+2. если чат не найден, [выбрасываем исключение](https://github.com/Grin941/social-network/blob/main/src/social_network/domain/services/chat.py#L108) DialogNotFoundError
+3. вызываем [UDF-процедуру](https://github.com/Grin941/social-network/blob/main/src/social_network/infrastructure/redis_udf/redis_udf.lua#L30) `show_messages` и по ключу `messages:dialog_id` возвращаем сообщения `[{id: uuid, author_id: uuid, chat_id: uuid, message: str}]` с сортировкой по rang
 
 ## Нагрузочное тестирование
 
