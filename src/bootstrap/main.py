@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from bootstrap import settings, uow
 from data_generator import const, generator
-from social_network.domain import models
+from social_network.domain import models, services
 from social_network.domain.services import auth
 from social_network.infrastructure.database import repository
 
@@ -146,7 +146,10 @@ class Bootstrap:
             try:
                 # Generate Redis UDF chat metadata
                 await self._redis.set(
-                    f"dialog:{str(user_id)}:{str(user.id)}:meta", chat.model_dump_json()
+                    services.RedisUDFChatService.make_dialog_key(
+                        user_id=user.id, friend_id=user.id
+                    ),
+                    chat.model_dump_json(),
                 )
             except aioredis.RedisError as e:
                 logger.warning(f"Redis Error: {e}")

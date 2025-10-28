@@ -37,7 +37,7 @@ local function show_messages(keys, args)
         limit = offset + limit - 1
     end
 
-    return messages = redis.call('ZRANGE', key, offset, limit)
+    return redis.call('ZRANGE', key, offset, limit)
 end
 
 redis.register_function('make_dialog', make_dialog)

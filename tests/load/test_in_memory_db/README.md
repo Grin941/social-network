@@ -97,116 +97,83 @@ set -a && source .env && set +a && locust -f tests/load/test_in_memory_db/locust
 
 #### Информация о нагрузке
 
-Всего сервер обработал 8984 запросов.
+Всего сервер обработал 1259 запросов.
 
-Число ошибок 2, что равно 0.02% от общего числа запросов
+Число ошибок 4, что равно 0.32% от общего числа запросов
 
-![RPS / Throughput](./media/rps-before.png)
+![RPS / Throughput](./media/rps-db.png)
 
-Cредний RPS = 30.
+Cредний RPS = 5.4.
 Начал падать после 500 пользователей.
 
 Средняя пропускная способность
-- list_dialogs = 20
-- send_message = 10
+- list_dialogs = 3.5
+- send_message = 1.9
 
+![Response Time](./media/response-db.png)
 
-| Configuration | RPS (50) | Throughput (50) | total queries | errors %  |
-|---------------|----------|-----------------|---------------|-----------|
-| No Sharding   | 30       | 20/10           | 8984          | 0.02      |
+99 персентиль времени ответа от сервера
+- list_dialogs = 18.4 sec
+- send_message = 16.7 sec
 
-### Тестирование с шардированием
+| Configuration | RPS (50) | Throughput (50) | Response (99)  | total queries | errors %   |
+|---------------|----------|-----------------|----------------|---------------|------------|
+| No UDF        | 5.4      | 3.5/1.9         | 18.4/16.7      | 1259          | 0.32       |
+
+### Тестирование с Redis UDF
 
 #### Запуск теста
 
 Запускаем приложение
 ```shell
-set -a && source .env && set +a && docker compose -f devops/test_sharding/docker-compose.sharding.yaml up --build
+set -a && source .env && set +a && docker compose -f devops/test_in_memory_db/docker-compose.udf.yaml up --build
 ```
 
 Запускаем тест
 ```shell
-set -a && source .env && set +a && locust -f tests/load/test_sharding/locustfiles/base.py --timescale --headless
+set -a && source .env && set +a && locust -f tests/load/test_in_memory_db/locustfiles/base.py --timescale --headless
 ```
 
-Зайдем на citus_master и выполним запросы из tests/load/test_sharding/init_master.sql
+Зайдем на redis и подгрузим lua-скрипты `redis-cli FUNCTION LOAD "$(cat /usr/local/etc/redis/scripts/redis_udf.lua)"`
 
 #### Информация о нагрузке
 
-Всего сервер обработал 1399 запросов.
+Всего сервер обработал 1809 запросов.
 
-Число ошибок 138, что равно 10% от общего числа запросов
+Число ошибок 2, что равно 0.1% от общего числа запросов
 
 ![RPS / Throughput](./media/rps-after.png)
 
-Cредний RPS = 6.
-Начал падать после 100 пользователей.
+Cредний RPS = 7.2.
+Начал падать после 800 пользователей.
 
 Средняя пропускная способность
-- list_dialogs = 4
-- send_message = 2
+- list_dialogs = 4.8
+- send_message = 2.5
+
+![Response Time](./media/response-udf.png)
+
+99 персентиль времени ответа от сервера
+- list_dialogs = 7.8 sec
+- send_message = 8.3 sec
+
+![Redis](./media/redis-udf.png)
+
+Нагрузка на Redis представлена на графике выше
 
 
-| Configuration | RPS (50) | Throughput (50) | total queries | errors % |
-|---------------|----------|-----------------|---------------|----------|
-| Sharding      | 6 (-80%) | 4/2 (-80%)      | 1399 (-85%)   | 10       |
+| Configuration | RPS (50)    | Throughput (50)    | Response (99)        | total queries | errors %   |
+|---------------|-------------|--------------------|----------------------|---------------|------------|
+| Redis UDF     | 7.2 (+33%)  | 4.8/2.5 (+37/+31%) | 7.8/8.3 (-58/-50%) | 1809 (+43%)   | 0.1 (-66%) |
 
-
-### Тестирование с шардированием без партицирования
-
-Есть гипотеза, что получение чатов работает медленнее из-за дополнительного партицирования шардов.
-
-Проверим гипотезу, удалив партицирование таблицы chat_messages
-
-![No partitioning](./media/no-partition.png)
-
-#### Запуск теста
-
-Запускаем приложение
-```shell
-set -a && source .env && set +a && docker compose -f devops/test_sharding/docker-compose.sharding.yaml up --build
-```
-
-Запускаем тест
-```shell
-set -a && source .env && set +a && locust -f tests/load/test_sharding/locustfiles/base.py --timescale --headless
-```
-
-Зайдем на citus_master и выполним запрос create_distributed_table из tests/load/test_sharding/init_master.sql
-
-#### Информация о нагрузке
-
-Всего сервер обработал 1184 запросов.
-
-Число ошибок 7, что равно 0.6% от общего числа запросов
-
-![RPS / Throughput](./media/rps-no-partition.png)
-
-Cредний RPS = 6.
-Начал падать после 100 пользователей.
-
-Средняя пропускная способность
-- list_dialogs = 4
-- send_message = 2
-
-
-| Configuration            | RPS (50) | Throughput (50) | total queries | errors % |
-|--------------------------|----------|-----------------|---------------|----------|
-| Sharding No Partitioning | 6 (-80%) | 4/2 (-80%)      | 1184 (-87%)   | 0.6      |
-
-Master-нода при этом отдает ошибки
-
-![Master Errors](./media/master-errors.png)
 
 ## Выводы
 
-| Configuration            | RPS (50) | Throughput (50) | total queries | errors %   |
-|--------------------------|----------|-----------------|---------------|------------|
-| No Sharding              | 30       | 20/10           | 8984          | 0.02       |
-| Sharding                 | 6 (-80%) | 4/2 (-80%)      | 1399 (-85%)   | 10         |
-| Sharding No Partitioning | 6 (-80%) | 4/2 (-80%)      | 1184 (-87%)   | 0.6        |
+| Configuration | RPS (50)   | Throughput (50)    | Response (99)        | total queries | errors %   |
+|---------------|------------|--------------------|----------------------|---------------|------------|
+| No UDF        | 5.4        | 3.5/1.9            | 18.4/16.7            | 1259          | 0.32       |
+| Redis UDF     | 7.2 (+33%) | 4.8/2.5 (+37/+31%) | 7.8/8.3 (-58/-50%)   | 1809 (+43%)   | 0.1 (-66%) |
 
-- шардирование сократило производительность системы на 80%
-- партицирование шардов на это никак не повлияло
-- сервер стал возвращать ошибки подключения
-- предполагаю, что дело в балансировщике нагрузки между кластером citus и приложением
+- использование In-memory СУБД повысило производительность системы более чем на треть
+- время ответа клиенту от сервера сократилось вдвое
+- число ошибок от сервера сократилось более чем в 2 раза

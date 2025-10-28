@@ -104,12 +104,10 @@ async def get_chat_service(request: requests.Request) -> services.AbstractChatSe
         user_repository=repository.UserRepository(),
     )
     if request.state.settings.redis_udf_is_enabled:
-        udf_service = services.RedisUDFChatService(
+        return services.RedisUDFChatService(
             unit_of_work=unit_of_work,
             redis_client=request.state.redis,
         )
-        if udf_service.is_valid():
-            return udf_service
     return services.ChatService(unit_of_work=unit_of_work)
 
 

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class GeneratorSettings(pydantic_settings.BaseSettings):
     locale: str = generator_const.LOCALE
     seed: int = generator_const.SEED
-    users_count: int = 100_000
+    users_count: int = 1000
     max_posts_per_user_count: int = 30
     max_user_friends_count: int = 1000
 
