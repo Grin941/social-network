@@ -147,6 +147,7 @@ class SocialNetworkSettings(pydantic_settings.BaseSettings):
     sentry: SentrySettings = pydantic.Field(default_factory=SentrySettings)
 
     celebrity_friends_threshold: int = 500
+    redis_udf_is_enabled: bool = False
 
     level: str = "INFO"
 
@@ -186,4 +187,5 @@ class SocialNetworkSettings(pydantic_settings.BaseSettings):
         logger.info(
             f"settings.celebrity_friends_threshold={self.celebrity_friends_threshold}"
         )
+        logger.info(f"settings.redis_udf_is_enabled={self.redis_udf_is_enabled}")
         logger.info(f"settings.level={self.level}")

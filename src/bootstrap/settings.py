@@ -6,7 +6,7 @@ import pydantic
 import pydantic_settings
 
 from data_generator import const as generator_const
-from social_network.settings import AuthSettings, DbSettings
+from social_network.settings import AuthSettings, DbSettings, RedisSettings
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class GeneratorSettings(pydantic_settings.BaseSettings):
     locale: str = generator_const.LOCALE
     seed: int = generator_const.SEED
-    users_count: int = 100_000
+    users_count: int = 1000
     max_posts_per_user_count: int = 30
     max_user_friends_count: int = 1000
 
@@ -39,7 +39,9 @@ class BootstrapSettings(pydantic_settings.BaseSettings):
     db: DbSettings = pydantic.Field(default_factory=DbSettings)
     auth: AuthSettings = pydantic.Field(default_factory=AuthSettings)
     generator: GeneratorSettings = pydantic.Field(default_factory=GeneratorSettings)
+    redis: RedisSettings = pydantic.Field(default_factory=RedisSettings)
 
+    redis_udf_is_enabled: bool = False
     log_level: str = "DEBUG"
 
     @property
@@ -68,6 +70,8 @@ class BootstrapSettings(pydantic_settings.BaseSettings):
         self.db.print_to_log()
         self.generator.print_to_log()
         self.auth.print_to_log()
+        self.redis.print_to_log()
+        logger.info(f"settings.redis_udf_is_enabled={self.redis_udf_is_enabled}")
         logger.info(f"settings.level={self.log_level}")
         logger.info(f"settings.my_password={self.my_password}")
         logger.info(f"settings.my_uuid={self.my_uuid}")

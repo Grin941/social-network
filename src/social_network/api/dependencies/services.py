@@ -93,18 +93,22 @@ async def get_feed_service(request: requests.Request) -> services.FeedService:
     )
 
 
-async def get_chat_service(request: requests.Request) -> services.ChatService:
-    return services.ChatService(
-        unit_of_work=uow.ChatUnitOfWork(
-            database_name=request.state.settings.db.name,
-            master_factory=request.state.master_factory,
-            slave_factory=request.state.slave_factory,
-            chat_repository=repository.ChatRepository(),
-            chat_participant_repository=repository.ChatParticipantRepository(),
-            chat_message_repository=repository.ChatMessageRepository(),
-            user_repository=repository.UserRepository(),
-        ),
+async def get_chat_service(request: requests.Request) -> services.AbstractChatService:
+    unit_of_work = uow.ChatUnitOfWork(
+        database_name=request.state.settings.db.name,
+        master_factory=request.state.master_factory,
+        slave_factory=request.state.slave_factory,
+        chat_repository=repository.ChatRepository(),
+        chat_participant_repository=repository.ChatParticipantRepository(),
+        chat_message_repository=repository.ChatMessageRepository(),
+        user_repository=repository.UserRepository(),
     )
+    if request.state.settings.redis_udf_is_enabled:
+        return services.RedisUDFChatService(
+            unit_of_work=unit_of_work,
+            redis_client=request.state.redis,
+        )
+    return services.ChatService(unit_of_work=unit_of_work)
 
 
 AuthService = typing.Annotated[services.AuthService, fastapi.Depends(get_auth_service)]
@@ -120,4 +124,6 @@ AsyncWsFeedService = typing.Annotated[
     services.AsyncFeedService, fastapi.Depends(get_async_ws_feed_service)
 ]
 FeedService = typing.Annotated[services.FeedService, fastapi.Depends(get_feed_service)]
-ChatService = typing.Annotated[services.ChatService, fastapi.Depends(get_chat_service)]
+ChatService = typing.Annotated[
+    services.AbstractChatService, fastapi.Depends(get_chat_service)
+]

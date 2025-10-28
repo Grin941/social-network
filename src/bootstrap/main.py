@@ -5,11 +5,12 @@ import threading
 import typing
 import uuid
 
+from redis import asyncio as aioredis
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from bootstrap import settings, uow
 from data_generator import const, generator
-from social_network.domain import models
+from social_network.domain import models, services
 from social_network.domain.services import auth
 from social_network.infrastructure.database import repository
 
@@ -47,6 +48,7 @@ class Bootstrap:
             seed=self._settings.generator.seed,
             locale=self._settings.generator.locale,
         )
+        self._redis = aioredis.from_url(self._settings.redis.connection_url)
 
     @staticmethod
     def _start_async_loop() -> None:
@@ -141,6 +143,17 @@ class Bootstrap:
             chat = await self._uow.chats.create(
                 self._generator.generate_dialog(user_id=user_id, friend_id=user.id)
             )
+            try:
+                # Generate Redis UDF chat metadata
+                await self._redis.set(
+                    services.RedisUDFChatService.make_dialog_key(
+                        user_id=user.id, friend_id=user.id
+                    ),
+                    chat.model_dump_json(),
+                )
+            except aioredis.RedisError as e:
+                logger.warning(f"Redis Error: {e}")
+
             chat_participants_to_make.extend(
                 [
                     self._generator.generate_dialog_participant(
